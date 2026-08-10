@@ -1,0 +1,122 @@
+[
+  {
+    "id": "Q001",
+    "question": "What is the penalty for submitting an assignment late?",
+    "ground_truth": "Assignments submitted after the deadline incur a penalty of 10% per day, up to a maximum of 3 days late. After 3 days past the deadline, the assignment receives a score of zero.",
+    "category": "assignment"
+  },
+  {
+    "id": "Q002",
+    "question": "How far in advance must an extension request be submitted?",
+    "ground_truth": "Extension requests must be submitted at least 48 hours before the deadline. Valid reasons include documented medical emergencies, bereavement, university-sanctioned events, and religious observances.",
+    "category": "assignment"
+  },
+  {
+    "id": "Q003",
+    "question": "What happens on a second plagiarism offense?",
+    "ground_truth": "On the second offense, the student fails the course and is referred to the Academic Integrity Board.",
+    "category": "assignment"
+  },
+  {
+    "id": "Q004",
+    "question": "What is the resubmission policy for assignments?",
+    "ground_truth": "Resubmission is permitted only for assignments that scored below 50%, and only if the student attended all related tutorials. Resubmitted assignments are capped at a maximum grade of 60%, and only one resubmission attempt is allowed per assignment within 7 days of receiving graded feedback.",
+    "category": "assignment"
+  },
+  {
+    "id": "Q005",
+    "question": "What are the grading rubric categories and their weights?",
+    "ground_truth": "Rubric categories typically include: Content Accuracy (40%), Critical Analysis (25%), Presentation & Formatting (20%), and References (15%).",
+    "category": "assignment"
+  },
+  {
+    "id": "Q006",
+    "question": "How early must students arrive before an exam?",
+    "ground_truth": "Students must arrive at least 15 minutes before the scheduled exam time. Late arrivals up to 30 minutes may be admitted but will not receive extra time. Students arriving more than 30 minutes late will not be admitted.",
+    "category": "exam"
+  },
+  {
+    "id": "Q007",
+    "question": "What are the rules for make-up examinations?",
+    "ground_truth": "Make-up exams are only granted for documented medical emergencies, bereavement of immediate family, or university-sanctioned conflicts. Students must submit a request within 48 hours of the missed exam with supporting documentation. Make-up exams are typically scheduled within 2 weeks of the original exam date.",
+    "category": "exam"
+  },
+  {
+    "id": "Q008",
+    "question": "How can a student appeal an exam grade?",
+    "ground_truth": "Students may appeal their exam grade within 10 business days of grade publication. Appeals must be submitted in writing to the Department Head with a detailed explanation. Valid grounds include arithmetic errors in grading, failure to grade a section, or evidence of bias. The appeal is reviewed by a committee of 3 faculty members, and the committee's decision is final.",
+    "category": "exam"
+  },
+  {
+    "id": "Q009",
+    "question": "What materials are allowed in a closed-book exam?",
+    "ground_truth": "In closed-book exams, no materials are allowed except writing instruments. All personal belongings including bags, phones, and smartwatches must be stored in the designated area at the front of the examination hall.",
+    "category": "exam"
+  },
+  {
+    "id": "Q010",
+    "question": "What is the standard duration of a final exam?",
+    "ground_truth": "Standard final exams are 3 hours in duration. Midterm exams are typically 1.5 to 2 hours in duration.",
+    "category": "exam"
+  },
+  {
+    "id": "Q011",
+    "question": "What is the add/drop policy for courses?",
+    "ground_truth": "Students may add courses during the first week of classes without penalty. Students may drop courses without academic record during the first 2 weeks. Withdrawal after the 2-week period but before the 10th week results in a W grade on the transcript which does not affect GPA. Withdrawal after the 10th week is not permitted except in cases of documented medical emergency or extreme personal hardship.",
+    "category": "registration"
+  },
+  {
+    "id": "Q012",
+    "question": "What is the maximum number of credit hours a student can take per semester?",
+    "ground_truth": "Full-time students may register for a maximum of 18 credit hours per semester. Students with a cumulative GPA of 3.5 or higher may request permission for up to 21 credit hours (overload), which must be approved by the academic advisor and the Dean.",
+    "category": "registration"
+  },
+  {
+    "id": "Q013",
+    "question": "How does the course waitlist system work?",
+    "ground_truth": "If a course section is full, students may join the waitlist. Positions are processed first-come, first-served. Students are automatically enrolled when a seat becomes available and notified via university email. They have 24 hours to confirm enrollment; failure to confirm results in removal. The maximum waitlist size is 10 students per section.",
+    "category": "registration"
+  },
+  {
+    "id": "Q014",
+    "question": "What are the prerequisite requirements for advanced courses?",
+    "ground_truth": "Students must complete all prerequisite courses with a minimum grade of C (2.0 GPA equivalent) before enrolling in advanced courses. Prerequisite overrides may be granted by the department chair with documented justification. The registration system automatically enforces prerequisite requirements.",
+    "category": "registration"
+  },
+  {
+    "id": "Q015",
+    "question": "What is the late registration fee?",
+    "ground_truth": "Late registration is permitted during the first week of classes with a late registration fee of $50. Registration closes at the end of the first week of classes.",
+    "category": "registration"
+  },
+  {
+    "id": "Q016",
+    "question": "What is the tuition refund schedule for course withdrawals?",
+    "ground_truth": "Refunds are based on timing: before classes start 100%, first week 90%, second week 75%, third week 50%, fourth week 25%, after fourth week no refund. Mandatory fees are non-refundable after the start of classes. Refunds are processed within 2-4 weeks via the original payment method.",
+    "category": "payment"
+  },
+  {
+    "id": "Q017",
+    "question": "How does the installment payment plan work?",
+    "ground_truth": "Students may enroll in a semester installment plan that divides tuition into 4 equal monthly payments. A non-refundable enrollment fee of $50 is required. The first installment is due on the tuition deadline with subsequent installments due on the 1st of each following month. Missing a payment results in a $25 late fee, and two missed payments result in removal from the plan with the full balance due immediately.",
+    "category": "payment"
+  },
+  {
+    "id": "Q018",
+    "question": "What are the late payment fees for tuition?",
+    "ground_truth": "A late payment fee of $100 is assessed if tuition is not paid by the deadline and the student is not enrolled in a payment plan. An additional $25 per week is charged for each unpaid week, up to $200 in additional late fees. Balances exceeding 60 days result in a financial hold preventing registration, transcript requests, and diploma release.",
+    "category": "payment"
+  },
+  {
+    "id": "Q019",
+    "question": "What are the requirements to maintain a merit-based scholarship?",
+    "ground_truth": "Merit-based scholarships require a minimum cumulative GPA of 3.0 for renewal, reviewed at the end of each academic year. Scholarship recipients must maintain full-time enrollment of 12 or more credit hours to retain their scholarship.",
+    "category": "payment"
+  },
+  {
+    "id": "Q020",
+    "question": "What is the per-credit-hour tuition rate?",
+    "ground_truth": "The current tuition rate is $500 per credit hour for undergraduate students and $750 per credit hour for graduate students. Tuition rates are reviewed annually and may increase by up to 5% per academic year.",
+    "category": "payment"
+  }
+]

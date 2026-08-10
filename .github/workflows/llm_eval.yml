@@ -1,0 +1,159 @@
+name: LLM Evaluation Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual evaluation run'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  evaluate:
+    name: Run LLM Evaluation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── Setup ──────────────────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ── Run Evaluation ─────────────────────────────────────────────────
+      - name: Run LLM Evaluation Pipeline
+        id: eval
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          MODEL_NAME: ${{ vars.MODEL_NAME || 'gpt-3.5-turbo' }}
+        run: |
+          set +e
+          python main.py 2>&1 | tee eval_output.txt
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # Extract metrics from results for the PR comment
+          if [ -f results/eval_results.json ]; then
+            echo "results_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "results_exist=false" >> $GITHUB_OUTPUT
+          fi
+
+          exit $EXIT_CODE
+
+      # ── Upload Artifacts ───────────────────────────────────────────────
+      - name: Upload evaluation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results-${{ github.run_number }}
+          path: |
+            results/eval_results.json
+            results/history.csv
+            eval_output.txt
+          retention-days: 90
+
+      # ── Post PR Comment ────────────────────────────────────────────────
+      - name: Post evaluation summary to PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let summary = '## 🧪 LLM Evaluation Results\n\n';
+            const exitCode = '${{ steps.eval.outputs.exit_code }}';
+            const status = exitCode === '0' ? '✅ **PASSED**' : '❌ **FAILED**';
+
+            summary += `**Status:** ${status}\n\n`;
+
+            // Read eval output
+            try {
+              const output = fs.readFileSync('eval_output.txt', 'utf8');
+              // Extract the summary table from output
+              const lines = output.split('\n');
+              const tableLines = lines.filter(l =>
+                l.includes('Accuracy') || l.includes('Hallucination') ||
+                l.includes('Latency') || l.includes('Cost') ||
+                l.includes('Failed') || l.includes('PASS') ||
+                l.includes('FAIL') || l.includes('Total')
+              );
+
+              if (tableLines.length > 0) {
+                summary += '```\n' + tableLines.join('\n') + '\n```\n\n';
+              }
+            } catch (e) {
+              summary += '> ⚠️ Could not read evaluation output.\n\n';
+            }
+
+            // Read detailed results
+            try {
+              const results = JSON.parse(fs.readFileSync('results/eval_results.json', 'utf8'));
+              const total = results.results ? results.results.length : 0;
+              const failed = results.results ? results.results.filter(r => r.failed).length : 0;
+
+              summary += `| Metric | Value |\n`;
+              summary += `|--------|-------|\n`;
+              summary += `| Total Questions | ${total} |\n`;
+              summary += `| Failed Questions | ${failed} |\n`;
+              summary += `| Run | #${{ github.run_number }} |\n\n`;
+            } catch (e) {
+              summary += '> ⚠️ Could not parse detailed results.\n\n';
+            }
+
+            summary += `📎 [View full results](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`;
+
+            // Find existing comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existingComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('LLM Evaluation Results')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: summary,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary,
+              });
+            }
+
+      # ── Final Status ───────────────────────────────────────────────────
+      - name: Check evaluation result
+        if: always()
+        run: |
+          EXIT_CODE="${{ steps.eval.outputs.exit_code }}"
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "::error::LLM Evaluation FAILED — one or more metrics breached thresholds. Merge blocked."
+            exit 1
+          else
+            echo "::notice::LLM Evaluation PASSED — all metrics within thresholds."
+          fi
