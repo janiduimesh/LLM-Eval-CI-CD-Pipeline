@@ -1,5 +1,6 @@
 import time
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from src.config import (
     GEMINI_API_KEY,
@@ -11,37 +12,32 @@ from src.config import (
 )
 
 
+SYSTEM_INSTRUCTION = (
+    "You are a helpful university assistant. Answer the student's question "
+    "strictly based on the provided context. If the context does not contain "
+    "enough information to answer, say 'I don't have enough information to "
+    "answer this question based on the available rules.' Do not make up "
+    "information or add details not present in the context."
+)
+
+
 class LLMClient:
     """
-    Wrapper around the Google Gemini Generative AI API.
+    Wrapper around the Google Gemini API (google-genai SDK).
 
     Tracks latency, token usage, and cost per query.
     """
 
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or GEMINI_API_KEY
-        self.model_name = model or MODEL_NAME
+        self.model_name = (model or MODEL_NAME).replace("models/", "")
 
         if not self.api_key:
             raise ValueError(
                 "GEMINI_API_KEY is not set. Please set it in .env or as an environment variable."
             )
 
-        genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel(
-            model_name=self.model_name,
-            generation_config=genai.GenerationConfig(
-                temperature=TEMPERATURE,
-                max_output_tokens=MAX_TOKENS,
-            ),
-            system_instruction=(
-                "You are a helpful university assistant. Answer the student's question "
-                "strictly based on the provided context. If the context does not contain "
-                "enough information to answer, say 'I don't have enough information to "
-                "answer this question based on the available rules.' Do not make up "
-                "information or add details not present in the context."
-            ),
-        )
+        self.client = genai.Client(api_key=self.api_key)
 
     def generate(self, prompt: str, context: str, max_retries: int = 3) -> dict:
         """
@@ -66,7 +62,15 @@ class LLMClient:
             try:
                 start_time = time.time()
 
-                response = self.model.generate_content(user_message)
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=user_message,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=TEMPERATURE,
+                        max_output_tokens=MAX_TOKENS,
+                    ),
+                )
 
                 latency = time.time() - start_time
 

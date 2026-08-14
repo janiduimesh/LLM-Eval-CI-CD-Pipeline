@@ -111,11 +111,11 @@ def hallucination_score(answer: str, context: str) -> float:
         return 1.0 if answer else 0.0
 
     try:
-        import google.generativeai as genai
-        from src.config import GEMINI_API_KEY
+        from google import genai
+        from src.config import GEMINI_API_KEY, MODEL_NAME
 
-        genai.configure(api_key=GEMINI_API_KEY)
-        judge = genai.GenerativeModel("gemini-2.0-flash")
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        model_name = MODEL_NAME.replace("models/", "")
 
         # Step 1: Extract atomic claims from the answer
         extraction_prompt = (
@@ -126,7 +126,10 @@ def hallucination_score(answer: str, context: str) -> float:
             f"Answer: {answer}"
         )
 
-        extraction_response = judge.generate_content(extraction_prompt)
+        extraction_response = client.models.generate_content(
+            model=model_name,
+            contents=extraction_prompt,
+        )
         claims_text = extraction_response.text.strip()
 
         if "NO_CLAIMS" in claims_text:
@@ -162,7 +165,10 @@ def hallucination_score(answer: str, context: str) -> float:
         for i, claim in enumerate(claims, 1):
             verification_prompt += f"{i}. {claim}\n"
 
-        verification_response = judge.generate_content(verification_prompt)
+        verification_response = client.models.generate_content(
+            model=model_name,
+            contents=verification_prompt,
+        )
         verdicts_text = verification_response.text.strip()
 
         # Parse verdicts

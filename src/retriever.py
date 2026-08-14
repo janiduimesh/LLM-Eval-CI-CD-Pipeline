@@ -7,7 +7,7 @@ import os
 import glob
 import hashlib
 import chromadb
-import google.generativeai as genai
+from google import genai
 
 from src.config import (
     KNOWLEDGE_BASE_DIR,
@@ -23,25 +23,22 @@ from src.config import (
 class GeminiEmbeddingFunction(chromadb.EmbeddingFunction):
     """
     Custom ChromaDB embedding function using Google Gemini's text-embedding-004.
+    Uses the new google-genai SDK.
     """
 
     def __init__(self, api_key: str, model_name: str):
-        genai.configure(api_key=api_key)
-        self.model_name = model_name
+        self._client = genai.Client(api_key=api_key)
+        self._model_name = model_name.replace("models/", "") if model_name else "text-embedding-004"
 
     def __call__(self, input: list[str]) -> list[list[float]]:
         """Generate embeddings for a list of texts."""
         embeddings = []
-        # Process in batches to respect API limits
-        batch_size = 100
-        for i in range(0, len(input), batch_size):
-            batch = input[i:i + batch_size]
-            result = genai.embed_content(
-                model=self.model_name,
-                content=batch,
-                task_type="retrieval_document",
+        for text in input:
+            result = self._client.models.embed_content(
+                model=self._model_name,
+                contents=text,
             )
-            embeddings.extend(result["embedding"])
+            embeddings.append(result.embeddings[0].values)
         return embeddings
 
 
@@ -126,7 +123,7 @@ class Retriever:
             )
 
         # Update collection metadata with the knowledge base hash
-        self.collection.modify(metadata={"kb_hash": kb_hash, "hnsw:space": "cosine"})
+        self.collection.modify(metadata={"kb_hash": kb_hash})
 
         print(f"[Retriever] Indexed {len(chunks)} chunks into ChromaDB collection '{self.COLLECTION_NAME}'.")
 

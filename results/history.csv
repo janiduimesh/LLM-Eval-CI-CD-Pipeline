@@ -1,1 +1,2 @@
 timestamp,accuracy,hallucination_rate,avg_latency,avg_cost,failed_count,total_questions,pass_fail
+2026-08-14T18:16:20.230567+00:00,0.0,0.0,0.0,0.0,20,20,FAIL

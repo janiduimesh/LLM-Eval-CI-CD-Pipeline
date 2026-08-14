@@ -41,7 +41,7 @@ jobs:
         id: eval
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          MODEL_NAME: ${{ vars.MODEL_NAME || 'gemini-2.0-flash' }}
+          MODEL_NAME: ${{ vars.MODEL_NAME || 'gemini-2.5-flash' }}
         run: |
           set +e
           python main.py 2>&1 | tee eval_output.txt

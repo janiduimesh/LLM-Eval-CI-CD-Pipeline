@@ -12,7 +12,7 @@ load_dotenv()
 # ─── LLM Configuration ───────────────────────────────────────────────────────
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.0-flash")
+MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
 
@@ -39,7 +39,7 @@ CHROMA_DB_DIR = os.path.join(PROJECT_ROOT, "chroma_db")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "300"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
 TOP_K_RETRIEVAL = int(os.getenv("TOP_K_RETRIEVAL", "3"))
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "models/text-embedding-004")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
 
 # ─── Evaluation Thresholds ──────────────────────────────────────────────────
 # These thresholds determine pass/fail for the CI/CD pipeline.
