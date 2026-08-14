@@ -1,8 +1,8 @@
 import time
-from openai import OpenAI
+import google.generativeai as genai
 
 from src.config import (
-    OPENAI_API_KEY,
+    GEMINI_API_KEY,
     MODEL_NAME,
     TEMPERATURE,
     MAX_TOKENS,
@@ -13,20 +13,35 @@ from src.config import (
 
 class LLMClient:
     """
-    Wrapper around the OpenAI Chat Completions API.
+    Wrapper around the Google Gemini Generative AI API.
 
     Tracks latency, token usage, and cost per query.
     """
 
     def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or OPENAI_API_KEY
-        self.model = model or MODEL_NAME
-        self.client = OpenAI(api_key=self.api_key)
+        self.api_key = api_key or GEMINI_API_KEY
+        self.model_name = model or MODEL_NAME
 
         if not self.api_key:
             raise ValueError(
-                "OPENAI_API_KEY is not set. Please set it in .env or as an environment variable."
+                "GEMINI_API_KEY is not set. Please set it in .env or as an environment variable."
             )
+
+        genai.configure(api_key=self.api_key)
+        self.model = genai.GenerativeModel(
+            model_name=self.model_name,
+            generation_config=genai.GenerationConfig(
+                temperature=TEMPERATURE,
+                max_output_tokens=MAX_TOKENS,
+            ),
+            system_instruction=(
+                "You are a helpful university assistant. Answer the student's question "
+                "strictly based on the provided context. If the context does not contain "
+                "enough information to answer, say 'I don't have enough information to "
+                "answer this question based on the available rules.' Do not make up "
+                "information or add details not present in the context."
+            ),
+        )
 
     def generate(self, prompt: str, context: str, max_retries: int = 3) -> dict:
         """
@@ -40,45 +55,30 @@ class LLMClient:
         Returns:
             Dict with keys: answer, usage, latency, cost
         """
-        system_message = (
-            "You are a helpful university assistant. Answer the student's question "
-            "strictly based on the provided context. If the context does not contain "
-            "enough information to answer, say 'I don't have enough information to "
-            "answer this question based on the available rules.' Do not make up "
-            "information or add details not present in the context."
-        )
-
         user_message = (
             f"Context:\n{context}\n\n"
             f"Question: {prompt}\n\n"
             f"Answer based only on the context above:"
         )
 
-        messages = [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_message},
-        ]
-
         last_error = None
         for attempt in range(max_retries):
             try:
                 start_time = time.time()
 
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=TEMPERATURE,
-                    max_tokens=MAX_TOKENS,
-                )
+                response = self.model.generate_content(user_message)
 
                 latency = time.time() - start_time
 
                 # Extract response data
-                answer = response.choices[0].message.content.strip()
+                answer = response.text.strip()
+
+                # Extract token usage from Gemini's usage metadata
+                usage_metadata = response.usage_metadata
                 usage = {
-                    "prompt_tokens": response.usage.prompt_tokens,
-                    "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens,
+                    "prompt_tokens": usage_metadata.prompt_token_count,
+                    "completion_tokens": usage_metadata.candidates_token_count,
+                    "total_tokens": usage_metadata.total_token_count,
                 }
 
                 # Calculate cost

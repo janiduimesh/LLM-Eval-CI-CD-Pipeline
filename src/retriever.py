@@ -1,37 +1,136 @@
 """
-TF-IDF + Cosine Similarity retriever for the knowledge base.
-Loads .txt files, chunks them, and retrieves top-k relevant chunks.
+ChromaDB-based retriever for the knowledge base.
+Loads .txt files, chunks them, and stores/retrieves via ChromaDB with Google Gemini embeddings.
 """
 
 import os
 import glob
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import hashlib
+import chromadb
+import google.generativeai as genai
 
-from src.config import KNOWLEDGE_BASE_DIR, CHUNK_SIZE, CHUNK_OVERLAP, TOP_K_RETRIEVAL
+from src.config import (
+    KNOWLEDGE_BASE_DIR,
+    CHUNK_SIZE,
+    CHUNK_OVERLAP,
+    TOP_K_RETRIEVAL,
+    CHROMA_DB_DIR,
+    GEMINI_API_KEY,
+    EMBEDDING_MODEL,
+)
+
+
+class GeminiEmbeddingFunction(chromadb.EmbeddingFunction):
+    """
+    Custom ChromaDB embedding function using Google Gemini's text-embedding-004.
+    """
+
+    def __init__(self, api_key: str, model_name: str):
+        genai.configure(api_key=api_key)
+        self.model_name = model_name
+
+    def __call__(self, input: list[str]) -> list[list[float]]:
+        """Generate embeddings for a list of texts."""
+        embeddings = []
+        # Process in batches to respect API limits
+        batch_size = 100
+        for i in range(0, len(input), batch_size):
+            batch = input[i:i + batch_size]
+            result = genai.embed_content(
+                model=self.model_name,
+                content=batch,
+                task_type="retrieval_document",
+            )
+            embeddings.extend(result["embedding"])
+        return embeddings
 
 
 class Retriever:
     """
-    A simple TF-IDF based document retriever.
+    ChromaDB-powered document retriever with Google Gemini embeddings.
 
     Loads all .txt files from the knowledge base directory, splits them into
-    overlapping chunks, and uses TF-IDF vectorization with cosine similarity
-    for retrieval.
+    overlapping chunks, and stores them in a persistent ChromaDB collection.
+    Uses Google's text-embedding-004 for semantic similarity search.
     """
+
+    COLLECTION_NAME = "university_rules"
 
     def __init__(self, knowledge_base_dir: str = None, chunk_size: int = None, chunk_overlap: int = None):
         self.knowledge_base_dir = knowledge_base_dir or KNOWLEDGE_BASE_DIR
         self.chunk_size = chunk_size or CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or CHUNK_OVERLAP
-        self.chunks = []
-        self.vectorizer = TfidfVectorizer(stop_words="english")
-        self.tfidf_matrix = None
 
-        self._load_and_chunk()
-        self._build_index()
+        # Initialize ChromaDB with persistent storage
+        self.chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
 
-    def _load_and_chunk(self):
+        # Use Google Gemini embeddings
+        self.embedding_fn = GeminiEmbeddingFunction(
+            api_key=GEMINI_API_KEY,
+            model_name=EMBEDDING_MODEL,
+        )
+
+        # Get or create the collection
+        self.collection = self.chroma_client.get_or_create_collection(
+            name=self.COLLECTION_NAME,
+            embedding_function=self.embedding_fn,
+            metadata={"hnsw:space": "cosine"},
+        )
+
+        # Load and index documents if the collection is empty or stale
+        self._sync_knowledge_base()
+
+    def _compute_kb_hash(self) -> str:
+        """Compute a hash of all knowledge base files to detect changes."""
+        hasher = hashlib.md5()
+        txt_files = sorted(glob.glob(os.path.join(self.knowledge_base_dir, "*.txt")))
+        for filepath in txt_files:
+            with open(filepath, "rb") as f:
+                hasher.update(f.read())
+        return hasher.hexdigest()
+
+    def _sync_knowledge_base(self):
+        """Load and index documents if the collection is empty or knowledge base has changed."""
+        kb_hash = self._compute_kb_hash()
+        existing_count = self.collection.count()
+
+        # Check if we need to re-index by comparing stored hash
+        metadata = self.collection.metadata or {}
+        stored_hash = metadata.get("kb_hash", "")
+
+        if existing_count > 0 and stored_hash == kb_hash:
+            print(f"[Retriever] ChromaDB collection '{self.COLLECTION_NAME}' is up to date ({existing_count} chunks).")
+            return
+
+        # Re-index: clear and reload
+        if existing_count > 0:
+            print(f"[Retriever] Knowledge base changed. Re-indexing...")
+            # Delete all existing documents
+            all_ids = self.collection.get()["ids"]
+            if all_ids:
+                self.collection.delete(ids=all_ids)
+
+        # Load, chunk, and add documents
+        chunks = self._load_and_chunk()
+        if not chunks:
+            raise ValueError("No chunks to index. Check knowledge base directory.")
+
+        # Add chunks to ChromaDB in batches
+        batch_size = 100
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i:i + batch_size]
+            self.collection.add(
+                ids=[c["id"] for c in batch],
+                documents=[c["text"] for c in batch],
+                metadatas=[{"source": c["source"], "start_char": c["start_char"]} for c in batch],
+            )
+
+        # Update collection metadata with the knowledge base hash
+        self.collection.modify(metadata={"kb_hash": kb_hash, "hnsw:space": "cosine"})
+
+        print(f"[Retriever] Indexed {len(chunks)} chunks into ChromaDB collection '{self.COLLECTION_NAME}'.")
+
+    def _load_and_chunk(self) -> list[dict]:
         """Load all .txt files and split into overlapping chunks."""
         txt_files = glob.glob(os.path.join(self.knowledge_base_dir, "*.txt"))
 
@@ -39,6 +138,9 @@ class Retriever:
             raise FileNotFoundError(
                 f"No .txt files found in {self.knowledge_base_dir}"
             )
+
+        chunks = []
+        chunk_idx = 0
 
         for filepath in sorted(txt_files):
             filename = os.path.basename(filepath)
@@ -51,27 +153,23 @@ class Retriever:
                 end = start + self.chunk_size
                 chunk_text = content[start:end].strip()
                 if chunk_text:
-                    self.chunks.append({
+                    chunks.append({
+                        "id": f"chunk_{chunk_idx:04d}",
                         "text": chunk_text,
                         "source": filename,
                         "start_char": start,
                     })
+                    chunk_idx += 1
                 start += self.chunk_size - self.chunk_overlap
 
-        print(f"[Retriever] Loaded {len(self.chunks)} chunks from {len(txt_files)} files.")
-
-    def _build_index(self):
-        """Build the TF-IDF index from chunks."""
-        if not self.chunks:
-            raise ValueError("No chunks to index. Check knowledge base directory.")
-
-        texts = [chunk["text"] for chunk in self.chunks]
-        self.tfidf_matrix = self.vectorizer.fit_transform(texts)
-        print(f"[Retriever] TF-IDF index built with vocabulary size {len(self.vectorizer.vocabulary_)}.")
+        print(f"[Retriever] Loaded {len(chunks)} chunks from {len(txt_files)} files.")
+        return chunks
 
     def retrieve(self, query: str, top_k: int = None) -> list[dict]:
         """
         Retrieve top-k most relevant chunks for a given query.
+
+        Uses ChromaDB's semantic similarity search with Gemini embeddings.
 
         Args:
             query: The search query.
@@ -82,20 +180,26 @@ class Retriever:
         """
         top_k = top_k or TOP_K_RETRIEVAL
 
-        # Transform query using the fitted vectorizer
-        query_vec = self.vectorizer.transform([query])
-        similarities = cosine_similarity(query_vec, self.tfidf_matrix).flatten()
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=top_k,
+            include=["documents", "metadatas", "distances"],
+        )
 
-        # Get top-k indices sorted by similarity (descending)
-        top_indices = similarities.argsort()[-top_k:][::-1]
+        retrieved = []
+        if results and results["documents"] and results["documents"][0]:
+            for doc, metadata, distance in zip(
+                results["documents"][0],
+                results["metadatas"][0],
+                results["distances"][0],
+            ):
+                # ChromaDB returns cosine distance; convert to similarity score
+                similarity = 1 - distance
+                if similarity > 0:
+                    retrieved.append({
+                        "text": doc,
+                        "source": metadata.get("source", "unknown"),
+                        "score": round(float(similarity), 4),
+                    })
 
-        results = []
-        for idx in top_indices:
-            if similarities[idx] > 0:  # Only include non-zero similarity
-                results.append({
-                    "text": self.chunks[idx]["text"],
-                    "source": self.chunks[idx]["source"],
-                    "score": float(similarities[idx]),
-                })
-
-        return results
+        return retrieved
