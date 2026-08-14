@@ -96,19 +96,102 @@ def hallucination_score(answer: str, context: str) -> float:
     """
     Measure how much of the answer is NOT grounded in the provided context.
 
-    Splits the answer into sentences and checks each sentence's overlap
-    with the context. A higher score means more hallucination (worse).
+    Splits the answer into atomic sentences/claims and verifies semantic
+    entailment against the retrieved context using an LLM Judge (Gemini).
+    A higher score means more hallucination (worse).
 
     Args:
         answer: The LLM's generated answer.
         context: The retrieved context that was provided to the LLM.
 
     Returns:
-        Float between 0 and 1 (lower is better; 0 = fully grounded).
+        Float between 0.0 and 1.0 (0.0 = fully grounded, 1.0 = fully hallucinated).
     """
     if not answer or not context:
         return 1.0 if answer else 0.0
 
+    try:
+        import google.generativeai as genai
+        from src.config import GEMINI_API_KEY
+
+        genai.configure(api_key=GEMINI_API_KEY)
+        judge = genai.GenerativeModel("gemini-2.0-flash")
+
+        # Step 1: Extract atomic claims from the answer
+        extraction_prompt = (
+            "Extract all atomic factual claims from the following answer. "
+            "Each claim should be a single, self-contained statement that can be "
+            "independently verified. Return ONLY a numbered list of claims, one per line. "
+            "If the answer contains no verifiable claims, return 'NO_CLAIMS'.\n\n"
+            f"Answer: {answer}"
+        )
+
+        extraction_response = judge.generate_content(extraction_prompt)
+        claims_text = extraction_response.text.strip()
+
+        if "NO_CLAIMS" in claims_text:
+            return 0.0
+
+        # Parse claims from numbered list
+        claims = []
+        for line in claims_text.split("\n"):
+            line = line.strip()
+            # Remove numbering (e.g., "1.", "1)", "- ")
+            cleaned = re.sub(r"^\d+[\.\)]\s*", "", line)
+            cleaned = re.sub(r"^[-•]\s*", "", cleaned)
+            cleaned = cleaned.strip()
+            if cleaned and len(cleaned) > 10:
+                claims.append(cleaned)
+
+        if not claims:
+            return 0.0
+
+        # Step 2: Verify each claim against the context
+        verification_prompt = (
+            "You are a hallucination detection judge. For each claim below, determine "
+            "whether it is SUPPORTED or NOT_SUPPORTED by the provided context.\n\n"
+            "Rules:\n"
+            "- SUPPORTED: The claim can be directly inferred from the context.\n"
+            "- NOT_SUPPORTED: The claim contains information not present in or "
+            "contradicted by the context.\n\n"
+            "Return ONLY one verdict per line in the format: 'CLAIM_N: SUPPORTED' or "
+            "'CLAIM_N: NOT_SUPPORTED' where N is the claim number.\n\n"
+            f"Context:\n{context}\n\n"
+            "Claims:\n"
+        )
+        for i, claim in enumerate(claims, 1):
+            verification_prompt += f"{i}. {claim}\n"
+
+        verification_response = judge.generate_content(verification_prompt)
+        verdicts_text = verification_response.text.strip()
+
+        # Parse verdicts
+        not_supported_count = 0
+        verdict_count = 0
+        for line in verdicts_text.split("\n"):
+            line = line.strip().upper()
+            if "NOT_SUPPORTED" in line:
+                not_supported_count += 1
+                verdict_count += 1
+            elif "SUPPORTED" in line:
+                verdict_count += 1
+
+        # Use the number of claims we sent if parsing returned fewer verdicts
+        total = max(verdict_count, len(claims))
+        hallucination_rate = not_supported_count / total if total > 0 else 0.0
+
+        return round(hallucination_rate, 4)
+
+    except Exception as e:
+        print(f"[Metrics] LLM Judge hallucination check failed, using fallback: {e}")
+        return _fallback_hallucination_score(answer, context)
+
+
+def _fallback_hallucination_score(answer: str, context: str) -> float:
+    """
+    Fallback hallucination scoring using keyword overlap and sequence matching.
+    Used when the LLM Judge is unavailable.
+    """
     answer_sentences = _split_into_sentences(answer)
     if not answer_sentences:
         return 0.0
@@ -123,17 +206,12 @@ def hallucination_score(answer: str, context: str) -> float:
         if not sentence_keywords:
             continue
 
-        # Check keyword overlap with context
         overlap = sentence_keywords & context_keywords
         overlap_ratio = len(overlap) / len(sentence_keywords) if sentence_keywords else 0
 
-        # Also check substring similarity
         norm_sentence = _normalize_text(sentence)
         seq_sim = SequenceMatcher(None, norm_sentence, context_normalized).ratio()
 
-        # A sentence is considered grounded if either:
-        # - More than 50% of its keywords appear in context, OR
-        # - It has reasonable sequence similarity (> 0.3)
         if overlap_ratio < 0.5 and seq_sim < 0.3:
             ungrounded_count += 1
 
