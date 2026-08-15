@@ -39,7 +39,7 @@ class LLMClient:
 
         self.client = genai.Client(api_key=self.api_key)
 
-    def generate(self, prompt: str, context: str, max_retries: int = 3) -> dict:
+    def generate(self, prompt: str, context: str, max_retries: int = 5) -> dict:
         """
         Generate a response from the LLM.
 
@@ -80,9 +80,9 @@ class LLMClient:
                 # Extract token usage from Gemini's usage metadata
                 usage_metadata = response.usage_metadata
                 usage = {
-                    "prompt_tokens": usage_metadata.prompt_token_count,
-                    "completion_tokens": usage_metadata.candidates_token_count,
-                    "total_tokens": usage_metadata.total_token_count,
+                    "prompt_tokens": getattr(usage_metadata, "prompt_token_count", 0) or 0,
+                    "completion_tokens": getattr(usage_metadata, "candidates_token_count", 0) or 0,
+                    "total_tokens": getattr(usage_metadata, "total_token_count", 0) or 0,
                 }
 
                 # Calculate cost
@@ -100,9 +100,26 @@ class LLMClient:
 
             except Exception as e:
                 last_error = e
-                print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                err_str = str(e)
+
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    # Check for rate limit / 429 quota exhaustion
+                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
+                        import re
+                        match = re.search(r"retry in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
+                        match_delay = re.search(r"retryDelay': '(\d+)s'", err_str)
+                        if match:
+                            wait_sec = float(match.group(1)) + 2.0
+                        elif match_delay:
+                            wait_sec = float(match_delay.group(1)) + 2.0
+                        else:
+                            wait_sec = 15.0 * (attempt + 1)
+                        
+                        print(f"[LLMClient] ⏳ Rate limit (429) hit. Waiting {wait_sec:.1f}s before retry (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(wait_sec)
+                    else:
+                        print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                        time.sleep(2 ** attempt)
 
         raise RuntimeError(
             f"[LLMClient] All {max_retries} attempts failed. Last error: {last_error}"

@@ -111,85 +111,44 @@ def hallucination_score(answer: str, context: str) -> float:
         return 1.0 if answer else 0.0
 
     try:
+        import json
         from google import genai
         from src.config import GEMINI_API_KEY, MODEL_NAME
 
         client = genai.Client(api_key=GEMINI_API_KEY)
         model_name = MODEL_NAME.replace("models/", "")
 
-        # Step 1: Extract atomic claims from the answer
-        extraction_prompt = (
-            "Extract all atomic factual claims from the following answer. "
-            "Each claim should be a single, self-contained statement that can be "
-            "independently verified. Return ONLY a numbered list of claims, one per line. "
-            "If the answer contains no verifiable claims, return 'NO_CLAIMS'.\n\n"
-            f"Answer: {answer}"
-        )
-
-        extraction_response = client.models.generate_content(
-            model=model_name,
-            contents=extraction_prompt,
-        )
-        claims_text = extraction_response.text.strip()
-
-        if "NO_CLAIMS" in claims_text:
-            return 0.0
-
-        # Parse claims from numbered list
-        claims = []
-        for line in claims_text.split("\n"):
-            line = line.strip()
-            # Remove numbering (e.g., "1.", "1)", "- ")
-            cleaned = re.sub(r"^\d+[\.\)]\s*", "", line)
-            cleaned = re.sub(r"^[-•]\s*", "", cleaned)
-            cleaned = cleaned.strip()
-            if cleaned and len(cleaned) > 10:
-                claims.append(cleaned)
-
-        if not claims:
-            return 0.0
-
-        # Step 2: Verify each claim against the context
-        verification_prompt = (
-            "You are a hallucination detection judge. For each claim below, determine "
-            "whether it is SUPPORTED or NOT_SUPPORTED by the provided context.\n\n"
-            "Rules:\n"
-            "- SUPPORTED: The claim can be directly inferred from the context.\n"
-            "- NOT_SUPPORTED: The claim contains information not present in or "
-            "contradicted by the context.\n\n"
-            "Return ONLY one verdict per line in the format: 'CLAIM_N: SUPPORTED' or "
-            "'CLAIM_N: NOT_SUPPORTED' where N is the claim number.\n\n"
+        prompt = (
+            "You are an expert hallucination evaluation judge for a RAG system.\n"
+            "Compare the Answer against the Context and determine the proportion of factual claims "
+            "in the Answer that are NOT supported by or grounded in the Context.\n\n"
             f"Context:\n{context}\n\n"
-            "Claims:\n"
+            f"Answer:\n{answer}\n\n"
+            "Evaluate faithfulness:\n"
+            "- Score 0.0 means 100% grounded in context (0% hallucination).\n"
+            "- Score 1.0 means completely ungrounded or contradictory.\n\n"
+            "Return ONLY a single valid JSON object in this format:\n"
+            '{"hallucination_score": 0.0}'
         )
-        for i, claim in enumerate(claims, 1):
-            verification_prompt += f"{i}. {claim}\n"
 
-        verification_response = client.models.generate_content(
+        response = client.models.generate_content(
             model=model_name,
-            contents=verification_prompt,
+            contents=prompt,
         )
-        verdicts_text = verification_response.text.strip()
 
-        # Parse verdicts
-        not_supported_count = 0
-        verdict_count = 0
-        for line in verdicts_text.split("\n"):
-            line = line.strip().upper()
-            if "NOT_SUPPORTED" in line:
-                not_supported_count += 1
-                verdict_count += 1
-            elif "SUPPORTED" in line:
-                verdict_count += 1
+        text = response.text.strip()
+        # Clean JSON markdown fences if present
+        text = re.sub(r"^```json\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"^```\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+        text = text.strip()
 
-        # Use the number of claims we sent if parsing returned fewer verdicts
-        total = max(verdict_count, len(claims))
-        hallucination_rate = not_supported_count / total if total > 0 else 0.0
-
-        return round(hallucination_rate, 4)
+        data = json.loads(text)
+        score = float(data.get("hallucination_score", 0.0))
+        return round(max(0.0, min(1.0, score)), 4)
 
     except Exception as e:
-        print(f"[Metrics] LLM Judge hallucination check failed, using fallback: {e}")
+        print(f"[Metrics] LLM Judge hallucination check skipped ({e}). Using fallback scorer.")
         return _fallback_hallucination_score(answer, context)
 
 
