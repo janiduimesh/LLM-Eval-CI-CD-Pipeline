@@ -43,6 +43,7 @@ CHROMA_DB_DIR = os.path.join(PROJECT_ROOT, "chroma_db")
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
 TOP_K_RETRIEVAL = int(os.getenv("TOP_K_RETRIEVAL", "3"))
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
 
 # ─── Evaluation Thresholds ──────────────────────────────────────────────────
 # These thresholds determine pass/fail for the CI/CD pipeline.
