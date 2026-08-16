@@ -1,1 +1,469 @@
-[]
+{
+  "timestamp": "2026-08-16T12:25:42.500010+00:00",
+  "total_questions": 20,
+  "results": [
+    {
+      "id": "Q001",
+      "category": "assignment",
+      "question": "What is the penalty for submitting an assignment late?",
+      "ground_truth": "Assignments submitted after the deadline incur a penalty of 10% per day, up to a maximum of 3 days late. After 3 days past the deadline, the assignment receives a score of zero.",
+      "predicted_answer": "According to the provided context, the penalty for submitting an assignment late is 10% per day, up to a maximum of 3 days late. After 3 days past the deadline, the assignment will receive a score of zero.",
+      "context_used": "ill incur a penalty of 10% per\n     day, up to a maximum of 3 days late.\n   - After 3 days past the deadline, the assignment will receive a score of zero.\n   - Technical issues (e.g., internet outage) must be reported to the IT Help\n     Desk within 2 hours of the deadline to qualify for an exceptio\n\n---\n\nthe instructor.\n   - Students are responsible for verifying that their submission was uploaded\n     correctly. A confirmation receipt is generated upon successful submission.\n\n2. LATE SUBMISSION POLICY\n   - Assignments submitted after the deadline will incur a penalty of 10% per\n     day, up to a m\n\n---\n\n2 hours of the deadline to qualify for an exception.\n   - Documentation (screenshots, ISP confirmation) is required for technical\n     exception requests.\n\n3. EXTENSIONS\n   - Extension requests must be submitted at least 48 hours before the deadline.\n   - Valid reasons for extensions include: docume",
+      "sources": [
+        "assignment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.5239,
+        "cost": 2.119e-05
+      },
+      "tokens": {
+        "prompt_tokens": 347,
+        "completion_tokens": 48,
+        "total_tokens": 395
+      },
+      "failed": false
+    },
+    {
+      "id": "Q002",
+      "category": "assignment",
+      "question": "How far in advance must an extension request be submitted?",
+      "ground_truth": "Extension requests must be submitted at least 48 hours before the deadline. Valid reasons include documented medical emergencies, bereavement, university-sanctioned events, and religious observances.",
+      "predicted_answer": "According to the context, extension requests must be submitted at least 48 hours before the deadline.",
+      "context_used": "- Valid reasons for extensions include: documented medical emergencies,\n     bereavement, university-sanctioned events, and religious observances.\n   - Extensions are granted at the discretion of the instructor and may not\n     exceed 7 calendar days beyond the original deadline.\n   - Students m\n\n---\n\n2 hours of the deadline to qualify for an exception.\n   - Documentation (screenshots, ISP confirmation) is required for technical\n     exception requests.\n\n3. EXTENSIONS\n   - Extension requests must be submitted at least 48 hours before the deadline.\n   - Valid reasons for extensions include: docume\n\n---\n\ndays beyond the original deadline.\n   - Students may request a maximum of 2 extensions per course per semester.\n\n4. PLAGIARISM AND ACADEMIC INTEGRITY\n   - All submitted work must be original. Plagiarism includes copying from\n     other students, online sources, or AI-generated content without proper",
+      "sources": [
+        "assignment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.3994,
+        "cost": 1.83e-05
+      },
+      "tokens": {
+        "prompt_tokens": 334,
+        "completion_tokens": 20,
+        "total_tokens": 354
+      },
+      "failed": false
+    },
+    {
+      "id": "Q003",
+      "category": "assignment",
+      "question": "What happens on a second plagiarism offense?",
+      "ground_truth": "On the second offense, the student fails the course and is referred to the Academic Integrity Board.",
+      "predicted_answer": "I don't have enough information to answer this question based on the available rules. The context only mentions the consequences for a first offense (a zero on the assignment and a formal warning letter) but does not provide any information about the consequences for a second offense.",
+      "context_used": "assignment and a formal\n     warning letter.\n   - Second offense: The student fails the course and is referred to the\n     Academic Integrity Board.\n   - Third offense: The student faces suspension or expulsion from the\n     university.\n\n5. GROUP ASSIGNMENTS\n   - Group assignments must include a co\n\n---\n\ntudent.\n\n4. ACADEMIC DISHONESTY DURING EXAMS\n   - Any form of cheating during exams results in immediate expulsion from\n     the examination hall.\n   - The student receives a zero for the exam and is reported to the Academic\n     Integrity Board.\n   - Prohibited behaviors include: communicating with\n\n---\n\nne sources, or AI-generated content without proper\n     attribution.\n   - Assignments are processed through plagiarism detection software. A\n     similarity score above 25% will trigger a review.\n   - First offense: The student receives a zero on the assignment and a formal\n     warning letter.\n   -",
+      "sources": [
+        "assignment_rules.txt",
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.0,
+        "hallucination": 0.0,
+        "latency": 0.7092,
+        "cost": 2.094e-05
+      },
+      "tokens": {
+        "prompt_tokens": 334,
+        "completion_tokens": 53,
+        "total_tokens": 387
+      },
+      "failed": true
+    },
+    {
+      "id": "Q004",
+      "category": "assignment",
+      "question": "What is the resubmission policy for assignments?",
+      "ground_truth": "Resubmission is permitted only for assignments that scored below 50%, and only if the student attended all related tutorials. Resubmitted assignments are capped at a maximum grade of 60%, and only one resubmission attempt is allowed per assignment within 7 days of receiving graded feedback.",
+      "predicted_answer": "The resubmission policy for assignments is as follows:\n\n1. Resubmissions are permitted only for assignments that scored below 50%.\n2. To be eligible for resubmission, students must have attended all related tutorials.\n3. Only one resubmission attempt is allowed per assignment.\n4. Resubmitted assignments are capped at a maximum grade of 60%.\n5. Resubmissions must be completed within 7 days of receiving the graded feedback.\n\nNote that the resubmission policy does not apply to assignments that scored 50% or above, and students must meet the attendance requirement for related tutorials to be eligible for resubmission.",
+      "context_used": "- Only one resubmission attempt is allowed per assignment.\n   - Resubmissions must be completed within 7 days of receiving the graded\n     feedback.\n\n8. SPECIAL ACCOMMODATIONS\n   - Students with documented disabilities may receive extended deadlines\n     (typically 25% additional time) through the D\n\n---\n\nubmission deadline.\n\n7. RESUBMISSION POLICY\n   - Resubmission is permitted only for assignments that scored below 50%,\n     and only if the student attended all related tutorials.\n   - Resubmitted assignments are capped at a maximum grade of 60%.\n   - Only one resubmission attempt is allowed per ass\n\n---\n\ndistribution.\n   - Rubric categories typically include: Content Accuracy (40%), Critical\n     Analysis (25%), Presentation & Formatting (20%), and References (15%).\n   - Instructors must return graded assignments within 14 business days of\n     the submission deadline.\n\n7. RESUBMISSION POLICY\n   - R",
+      "sources": [
+        "assignment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.9069,
+        "cost": 2.768e-05
+      },
+      "tokens": {
+        "prompt_tokens": 344,
+        "completion_tokens": 131,
+        "total_tokens": 475
+      },
+      "failed": false
+    },
+    {
+      "id": "Q005",
+      "category": "assignment",
+      "question": "What are the grading rubric categories and their weights?",
+      "ground_truth": "Rubric categories typically include: Content Accuracy (40%), Critical Analysis (25%), Presentation & Formatting (20%), and References (15%).",
+      "predicted_answer": "The grading rubric categories and their weights are:\n\n1. Content Accuracy: 40%\n2. Critical Analysis: 25%\n3. Presentation & Formatting: 20%\n4. References: 15%",
+      "context_used": "distribution.\n   - Rubric categories typically include: Content Accuracy (40%), Critical\n     Analysis (25%), Presentation & Formatting (20%), and References (15%).\n   - Instructors must return graded assignments within 14 business days of\n     the submission deadline.\n\n7. RESUBMISSION POLICY\n   - R\n\n---\n\nthe submission deadline.\n   - Free-riding (contributing less than 10%) may result in individual grading\n     at a reduced scale.\n\n6. GRADING RUBRIC\n   - All assignments are graded on a standardized rubric provided at the time\n     of assignment distribution.\n   - Rubric categories typically inc\n\n---\n\nill incur a penalty of 10% per\n     day, up to a maximum of 3 days late.\n   - After 3 days past the deadline, the assignment will receive a score of zero.\n   - Technical issues (e.g., internet outage) must be reported to the IT Help\n     Desk within 2 hours of the deadline to qualify for an exceptio",
+      "sources": [
+        "assignment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.803,
+        "cost": 2.119e-05
+      },
+      "tokens": {
+        "prompt_tokens": 355,
+        "completion_tokens": 43,
+        "total_tokens": 398
+      },
+      "failed": false
+    },
+    {
+      "id": "Q006",
+      "category": "exam",
+      "question": "How early must students arrive before an exam?",
+      "ground_truth": "Students must arrive at least 15 minutes before the scheduled exam time. Late arrivals up to 30 minutes may be admitted but will not receive extra time. Students arriving more than 30 minutes late will not be admitted.",
+      "predicted_answer": "According to the context, students must arrive at least 15 minutes before the scheduled exam time.",
+      "context_used": "UCT\n   - Students must arrive at least 15 minutes before the scheduled exam time.\n   - Late arrivals up to 30 minutes may be admitted but will not receive extra\n     time. Students arriving more than 30 minutes late will not be admitted.\n   - Students must present a valid university ID card to be ad\n\n---\n\ns must present a valid university ID card to be admitted to the\n     examination hall.\n   - All personal belongings (bags, phones, smartwatches) must be stored in\n     the designated area at the front of the examination hall.\n\n3. PERMITTED MATERIALS\n   - Closed-book exams: No materials allowed excep\n\n---\n\nexams with more than 50 students require a minimum of 2 proctors.\n   - Proctors must complete the university's Proctor Training Module before\n     supervising exams.\n   - Online proctored exams use the university-approved proctoring software\n     and require a webcam and stable internet connection.",
+      "sources": [
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.6578,
+        "cost": 1.865e-05
+      },
+      "tokens": {
+        "prompt_tokens": 341,
+        "completion_tokens": 20,
+        "total_tokens": 361
+      },
+      "failed": false
+    },
+    {
+      "id": "Q007",
+      "category": "exam",
+      "question": "What are the rules for make-up examinations?",
+      "ground_truth": "Make-up exams are only granted for documented medical emergencies, bereavement of immediate family, or university-sanctioned conflicts. Students must submit a request within 48 hours of the missed exam with supporting documentation. Make-up exams are typically scheduled within 2 weeks of the original exam date.",
+      "predicted_answer": "According to the provided context, the rules for make-up examinations are as follows:\n\n1. Make-up exams are only granted for three specific reasons:\n   - Documented medical emergencies\n   - Bereavement (immediate family)\n   - University-sanctioned conflicts\n\n2. Students must submit a make-up exam request within 48 hours of the missed exam, along with supporting documentation.\n\n3. Make-up exams are typically scheduled within 2 weeks of the original exam date.\n\n4. The format of the make-up exam may differ from the original exam at the instructor's discretion.",
+      "context_used": "- Prohibited behaviors include: communicating with other students, using\n     unauthorized materials, copying from another student's paper, and\n     using electronic devices.\n   - Proctors have the authority to confiscate suspicious materials and\n     reassign seating during the exam.\n\n5. MAKE-UP EX\n\n---\n\nreassign seating during the exam.\n\n5. MAKE-UP EXAMINATIONS\n   - Make-up exams are only granted for documented medical emergencies,\n     bereavement (immediate family), or university-sanctioned conflicts.\n   - Students must submit a make-up exam request within 48 hours of the\n     missed exam along\n\n---\n\nuest within 48 hours of the\n     missed exam along with supporting documentation.\n   - Make-up exams are typically scheduled within 2 weeks of the original\n     exam date.\n   - The format of the make-up exam may differ from the original exam at\n     the instructor's discretion.\n\n6. GRADE APPEALS",
+      "sources": [
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.5446,
+        "cost": 2.639e-05
+      },
+      "tokens": {
+        "prompt_tokens": 339,
+        "completion_tokens": 118,
+        "total_tokens": 457
+      },
+      "failed": false
+    },
+    {
+      "id": "Q008",
+      "category": "exam",
+      "question": "How can a student appeal an exam grade?",
+      "ground_truth": "Students may appeal their exam grade within 10 business days of grade publication. Appeals must be submitted in writing to the Department Head with a detailed explanation. Valid grounds include arithmetic errors in grading, failure to grade a section, or evidence of bias. The appeal is reviewed by a committee of 3 faculty members, and the committee's decision is final.",
+      "predicted_answer": "To appeal an exam grade, a student must follow these steps:\n\n1. The appeal must be submitted within 10 business days of grade publication.\n2. The appeal must be submitted in writing to the Department Head.\n3. The appeal must include a detailed explanation of the grounds for appeal.\n4. The valid grounds for appeal include:\n   - Arithmetic errors in grading.\n   - Failure to grade a section.\n   - Evidence of bias.\n\nNote that the appeal is reviewed by a committee of 3 faculty members (excluding the original instructor), and their decision is final. The re-evaluated grade may be higher, lower, or the same as the original grade, at the discretion of the instructor.",
+      "context_used": "ds for appeal.\n   - Valid grounds include: arithmetic errors in grading, failure to grade\n     a section, or evidence of bias.\n   - The appeal is reviewed by a committee of 3 faculty members (excluding\n     the original instructor). The committee's decision is final.\n   - The re-evaluated grade may\n\n---\n\nthe instructor's discretion.\n\n6. GRADE APPEALS\n   - Students may appeal their exam grade within 10 business days of grade\n     publication.\n   - Appeals must be submitted in writing to the Department Head with a\n     detailed explanation of the grounds for appeal.\n   - Valid grounds include: arithme\n\n---\n\necision is final.\n   - The re-evaluated grade may be higher, lower, or the same as the\n     original grade.\n\n7. EXAM DURATION AND FORMAT\n   - Standard final exams are 3 hours in duration.\n   - Midterm exams are typically 1.5 to 2 hours in duration.\n   - Exam formats may include: multiple choice, sho",
+      "sources": [
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.5134,
+        "cost": 2.921e-05
+      },
+      "tokens": {
+        "prompt_tokens": 357,
+        "completion_tokens": 142,
+        "total_tokens": 499
+      },
+      "failed": false
+    },
+    {
+      "id": "Q009",
+      "category": "exam",
+      "question": "What materials are allowed in a closed-book exam?",
+      "ground_truth": "In closed-book exams, no materials are allowed except writing instruments. All personal belongings including bags, phones, and smartwatches must be stored in the designated area at the front of the examination hall.",
+      "predicted_answer": "Based on the provided context, the materials allowed in a closed-book exam are:\n\n- Writing instruments.\n\nThere is no mention of any other materials being allowed in a closed-book exam.",
+      "context_used": "- Closed-book exams: No materials allowed except writing instruments.\n   - Open-book exams: Only physical textbooks and printed notes are allowed\n     unless the instructor specifies otherwise. Electronic devices are\n     prohibited.\n   - Calculator-permitted exams: Only non-programmable, non-gra\n\n---\n\ns must present a valid university ID card to be admitted to the\n     examination hall.\n   - All personal belongings (bags, phones, smartwatches) must be stored in\n     the designated area at the front of the examination hall.\n\n3. PERMITTED MATERIALS\n   - Closed-book exams: No materials allowed excep\n\n---\n\nor-permitted exams: Only non-programmable, non-graphing\n     calculators are allowed. The approved models list is published on the\n     university website.\n   - Formula sheets: If permitted, they must be on a single A4 page,\n     handwritten by the student.\n\n4. ACADEMIC DISHONESTY DURING EXAMS\n   -",
+      "sources": [
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.124,
+        "cost": 2.026e-05
+      },
+      "tokens": {
+        "prompt_tokens": 346,
+        "completion_tokens": 37,
+        "total_tokens": 383
+      },
+      "failed": false
+    },
+    {
+      "id": "Q010",
+      "category": "exam",
+      "question": "What is the standard duration of a final exam?",
+      "ground_truth": "Standard final exams are 3 hours in duration. Midterm exams are typically 1.5 to 2 hours in duration.",
+      "predicted_answer": "According to the provided context, the standard duration of a final exam is 3 hours.",
+      "context_used": "ecision is final.\n   - The re-evaluated grade may be higher, lower, or the same as the\n     original grade.\n\n7. EXAM DURATION AND FORMAT\n   - Standard final exams are 3 hours in duration.\n   - Midterm exams are typically 1.5 to 2 hours in duration.\n   - Exam formats may include: multiple choice, sho\n\n---\n\nscheduled by the Registrar's Office and published\n     at least 4 weeks before the examination period begins.\n   - Midterm examinations are scheduled by individual instructors and must be\n     announced at least 2 weeks in advance.\n   - No exams may be scheduled during the last week of regular class\n\n---\n\nbe scheduled during the last week of regular classes (known\n     as the \"dead week\") except for lab practicals.\n   - Students with 3 or more exams on the same day may request rescheduling\n     of one exam through the Registrar's Office.\n\n2. EXAM CONDUCT\n   - Students must arrive at least 15 minutes",
+      "sources": [
+        "exam_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.0601,
+        "cost": 1.932e-05
+      },
+      "tokens": {
+        "prompt_tokens": 356,
+        "completion_tokens": 19,
+        "total_tokens": 375
+      },
+      "failed": false
+    },
+    {
+      "id": "Q011",
+      "category": "registration",
+      "question": "What is the add/drop policy for courses?",
+      "ground_truth": "Students may add courses during the first week of classes without penalty. Students may drop courses without academic record during the first 2 weeks. Withdrawal after the 2-week period but before the 10th week results in a W grade on the transcript which does not affect GPA. Withdrawal after the 10th week is not permitted except in cases of documented medical emergency or extreme personal hardship.",
+      "predicted_answer": "Based on the provided context, the add/drop policy for courses is as follows:\n\n- Students may add courses during the first week of classes without penalty.\n- Students may drop courses without academic record during the first 2 weeks of classes. Dropped courses will not appear on the transcript.\n- The add/drop period is not explicitly stated, but it is implied to be the first 2 weeks of classes, as this is when students can drop courses without academic record.\n\nAdditionally, students can switch between sections of the same course during the add/drop period without penalty. However, section changes after the add/drop period require instructor approval from both the original and new section instructors, and are subject to seat availability.",
+      "context_used": "requisites are not met.\n\n3. ADD/DROP POLICY\n   - Students may add courses during the first week of classes without penalty.\n   - Students may drop courses without academic record during the first 2 weeks\n     of classes. Dropped courses will not appear on the transcript.\n   - Withdrawal after the 2-\n\n---\n\ncation (e.g., transfer credits, professional experience).\n   - Co-requisite courses must be taken simultaneously in the same semester.\n   - The registration system automatically enforces prerequisite requirements\n     and will block enrollment if prerequisites are not met.\n\n3. ADD/DROP POLICY\n   - S\n\n---\n\nay switch between sections of the same course during the\n     add/drop period without penalty.\n   - Section changes after the add/drop period require instructor approval\n     from both the original and new section instructors.\n   - Section changes are subject to seat availability.\n\n7. ACADEMIC STAND",
+      "sources": [
+        "registration_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 3.2064,
+        "cost": 2.83e-05
+      },
+      "tokens": {
+        "prompt_tokens": 334,
+        "completion_tokens": 145,
+        "total_tokens": 479
+      },
+      "failed": false
+    },
+    {
+      "id": "Q012",
+      "category": "registration",
+      "question": "What is the maximum number of credit hours a student can take per semester?",
+      "ground_truth": "Full-time students may register for a maximum of 18 credit hours per semester. Students with a cumulative GPA of 3.5 or higher may request permission for up to 21 credit hours (overload), which must be approved by the academic advisor and the Dean.",
+      "predicted_answer": "Based on the provided context, the maximum number of credit hours a student can take per semester is 21 credit hours, but this requires permission from the academic advisor and the Dean of the student's college. \n\nFor full-time students, the maximum number of credit hours per semester is 18 credit hours.",
+      "context_used": "higher may request permission\n     to register for up to 21 credit hours (overload).\n   - Overload requests must be approved by the academic advisor and the\n     Dean of the student's college.\n   - Part-time students may register for 1 to 11 credit hours per semester.\n   - Summer session limits are\n\n---\n\nhours per semester.\n   - Summer session limits are 6 credit hours per summer term (12 total for\n     both summer terms).\n\n5. WAITLIST POLICY\n   - If a course section is full, students may join the waitlist through the\n     registration system.\n   - Waitlist positions are processed on a first-come, f\n\n---\n\ndocumented medical emergency or extreme personal hardship.\n\n4. CREDIT HOUR LIMITS\n   - Full-time students must register for a minimum of 12 credit hours and a\n     maximum of 18 credit hours per semester.\n   - Students with a cumulative GPA of 3.5 or higher may request permission\n     to register fo",
+      "sources": [
+        "registration_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.8994,
+        "cost": 2.276e-05
+      },
+      "tokens": {
+        "prompt_tokens": 356,
+        "completion_tokens": 62,
+        "total_tokens": 418
+      },
+      "failed": false
+    },
+    {
+      "id": "Q013",
+      "category": "registration",
+      "question": "How does the course waitlist system work?",
+      "ground_truth": "If a course section is full, students may join the waitlist. Positions are processed first-come, first-served. Students are automatically enrolled when a seat becomes available and notified via university email. They have 24 hours to confirm enrollment; failure to confirm results in removal. The maximum waitlist size is 10 students per section.",
+      "predicted_answer": "Based on the provided context, the course waitlist system works as follows:\n\n1. When a course section is full, students can join the waitlist through the registration system. The maximum waitlist size is 10 students per course section.\n\n2. Waitlist positions are processed on a first-come, first-served basis. This means that the student who joined the waitlist first will be the first to be considered for enrollment when a seat becomes available.\n\n3. When a seat becomes available, students are automatically enrolled and notified via their university email.\n\n4. Students have 24 hours to confirm their enrollment after being moved from the waitlist. If they fail to confirm within this time frame, they will be removed from the course and the next waitlisted student will be enrolled.\n\n5. Students can switch between sections of the same course during the first 24 hours of the semester. However, this does not affect the waitlist policy.\n\n6. The waitlist policy does not have any specific restrictions on the number of credit hours a student can take, but it does have summer session limits of 6 credit hours per summer term (12 total for both summer terms).",
+      "context_used": "aitlist positions are processed on a first-come, first-served basis.\n   - Students are automatically enrolled when a seat becomes available and are\n     notified via their university email.\n   - Students have 24 hours to confirm their enrollment after being moved\n     from the waitlist. Failure to c\n\n---\n\nr being moved\n     from the waitlist. Failure to confirm results in removal from the course\n     and the next waitlisted student is enrolled.\n   - The maximum waitlist size is 10 students per course section.\n\n6. COURSE SECTION CHANGES\n   - Students may switch between sections of the same course duri\n\n---\n\nhours per semester.\n   - Summer session limits are 6 credit hours per summer term (12 total for\n     both summer terms).\n\n5. WAITLIST POLICY\n   - If a course section is full, students may join the waitlist through the\n     registration system.\n   - Waitlist positions are processed on a first-come, f",
+      "sources": [
+        "registration_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.0919,
+        "cost": 3.608e-05
+      },
+      "tokens": {
+        "prompt_tokens": 344,
+        "completion_tokens": 236,
+        "total_tokens": 580
+      },
+      "failed": false
+    },
+    {
+      "id": "Q014",
+      "category": "registration",
+      "question": "What are the prerequisite requirements for advanced courses?",
+      "ground_truth": "Students must complete all prerequisite courses with a minimum grade of C (2.0 GPA equivalent) before enrolling in advanced courses. Prerequisite overrides may be granted by the department chair with documented justification. The registration system automatically enforces prerequisite requirements.",
+      "predicted_answer": "According to the context, the prerequisite requirements for advanced courses are as follows:\n\n- Students must complete all prerequisite courses with a minimum grade of C (2.0 GPA equivalent) before enrolling in advanced courses.\n- Prerequisite overrides may be granted by the department chair with documented justification (e.g., transfer credits, professional experience).",
+      "context_used": "EREQUISITES\n   - Students must complete all prerequisite courses with a minimum grade of\n     C (2.0 GPA equivalent) before enrolling in advanced courses.\n   - Prerequisite overrides may be granted by the department chair with\n     documented justification (e.g., transfer credits, professional exper\n\n---\n\nvailable to\n     all students regardless of class standing.\n   - Late registration is permitted during the first week of classes with a\n     late registration fee of $50.\n   - Registration closes at the end of the first week of classes.\n\n2. COURSE PREREQUISITES\n   - Students must complete all prereq\n\n---\n\ncation (e.g., transfer credits, professional experience).\n   - Co-requisite courses must be taken simultaneously in the same semester.\n   - The registration system automatically enforces prerequisite requirements\n     and will block enrollment if prerequisites are not met.\n\n3. ADD/DROP POLICY\n   - S",
+      "sources": [
+        "registration_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 2.5244,
+        "cost": 2.201e-05
+      },
+      "tokens": {
+        "prompt_tokens": 333,
+        "completion_tokens": 67,
+        "total_tokens": 400
+      },
+      "failed": false
+    },
+    {
+      "id": "Q015",
+      "category": "registration",
+      "question": "What is the late registration fee?",
+      "ground_truth": "Late registration is permitted during the first week of classes with a late registration fee of $50. Registration closes at the end of the first week of classes.",
+      "predicted_answer": "According to the provided context, the late registration fee is $50.",
+      "context_used": "onal $25 per week is charged for each week the balance remains\n     unpaid, up to a maximum of $200 in additional late fees.\n   - Students with outstanding balances exceeding 60 days will have a\n     financial hold placed on their account, preventing registration for\n     future semesters, transcrip\n\n---\n\no fail to pay by the deadline may have their registration\n     cancelled.\n   - A confirmation of financial responsibility must be completed online\n     before registration is finalized.\n\n3. PAYMENT METHODS\n   - Accepted payment methods include: bank transfer, credit card (Visa,\n     MasterCard, Amer\n\n---\n\nvailable to\n     all students regardless of class standing.\n   - Late registration is permitted during the first week of classes with a\n     late registration fee of $50.\n   - Registration closes at the end of the first week of classes.\n\n2. COURSE PREREQUISITES\n   - Students must complete all prereq",
+      "sources": [
+        "registration_rules.txt",
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.7973,
+        "cost": 1.79e-05
+      },
+      "tokens": {
+        "prompt_tokens": 334,
+        "completion_tokens": 15,
+        "total_tokens": 349
+      },
+      "failed": false
+    },
+    {
+      "id": "Q016",
+      "category": "payment",
+      "question": "What is the tuition refund schedule for course withdrawals?",
+      "ground_truth": "Refunds are based on timing: before classes start 100%, first week 90%, second week 75%, third week 50%, fourth week 25%, after fourth week no refund. Mandatory fees are non-refundable after the start of classes. Refunds are processed within 2-4 weeks via the original payment method.",
+      "predicted_answer": "Based on the provided context, the tuition refund schedule for course withdrawals is as follows:\n\n- Before the start of classes: 100% refund\n- During the first week: 90% refund\n- After the first week, but before the start of the second week: No refund information is provided in the context. However, based on the general refund policy, during the second week, students would be eligible for a 75% refund, during the third week, a 50% refund, during the fourth week, a 25% refund, and after the fourth week, no refund.",
+      "context_used": "0% refund\n     * During the first week: 90% refund\n     * During the second week: 75% refund\n     * During the third week: 50% refund\n     * During the fourth week: 25% refund\n     * After the fourth week: No refund\n   - Mandatory fees are non-refundable after the start of classes.\n   - Refunds are\n\n---\n\nregistration for\n     future semesters, transcript requests, and diploma release.\n\n6. REFUND POLICY\n   - Students who withdraw from courses are eligible for tuition refunds\n     based on the following schedule:\n     * Before the start of classes: 100% refund\n     * During the first week: 90% refund\n\n---\n\nar on the transcript.\n   - Withdrawal after the 2-week period but before the 10th week results in a\n     \"W\" (Withdrawal) grade on the transcript. This does not affect GPA.\n   - Withdrawal after the 10th week is not permitted except in cases of\n     documented medical emergency or extreme personal h",
+      "sources": [
+        "registration_rules.txt",
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.8354,
+        "cost": 2.803e-05
+      },
+      "tokens": {
+        "prompt_tokens": 367,
+        "completion_tokens": 121,
+        "total_tokens": 488
+      },
+      "failed": false
+    },
+    {
+      "id": "Q017",
+      "category": "payment",
+      "question": "How does the installment payment plan work?",
+      "ground_truth": "Students may enroll in a semester installment plan that divides tuition into 4 equal monthly payments. A non-refundable enrollment fee of $50 is required. The first installment is due on the tuition deadline with subsequent installments due on the 1st of each following month. Missing a payment results in a $25 late fee, and two missed payments result in removal from the plan with the full balance due immediately.",
+      "predicted_answer": "The installment payment plan works as follows:\n\n1. A non-refundable enrollment fee of $50 is required to set up the installment plan.\n2. The plan divides tuition into 4 equal monthly payments.\n3. The first installment is due on the tuition deadline.\n4. Subsequent installments are due on the 1st of each following month.\n5. If a student misses an installment payment, they will incur a $25 late fee per occurrence.\n6. If a student misses two installment payments, they will be removed from the plan and will be required to pay the full remaining balance.\n\nAdditionally, students can make online payments through the Student Financial Portal 24/7, and international wire transfers can be made, but they must include the student's university ID number as a reference. Processing international wire transfers takes 5-7 business days.",
+      "context_used": "NSTALLMENT PAYMENT PLAN\n   - Students may enroll in a semester installment plan that divides tuition\n     into 4 equal monthly payments.\n   - A non-refundable enrollment fee of $50 is required to set up the\n     installment plan.\n   - The first installment is due on the tuition deadline. Subsequent\n\n---\n\nllment is due on the tuition deadline. Subsequent\n     installments are due on the 1st of each following month.\n   - Missing an installment payment results in a $25 late fee per occurrence.\n   - Two missed installment payments will result in removal from the plan\n     and the full remaining balance\n\n---\n\n(Monday-Friday, 9 AM - 4 PM).\n   - Online payments can be made through the Student Financial Portal 24/7.\n   - International wire transfers must include the student's university ID\n     number as a reference. Processing takes 5-7 business days.\n\n4. INSTALLMENT PAYMENT PLAN\n   - Students may enroll i",
+      "sources": [
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.8183,
+        "cost": 3.124e-05
+      },
+      "tokens": {
+        "prompt_tokens": 348,
+        "completion_tokens": 173,
+        "total_tokens": 521
+      },
+      "failed": false
+    },
+    {
+      "id": "Q018",
+      "category": "payment",
+      "question": "What are the late payment fees for tuition?",
+      "ground_truth": "A late payment fee of $100 is assessed if tuition is not paid by the deadline and the student is not enrolled in a payment plan. An additional $25 per week is charged for each unpaid week, up to $200 in additional late fees. Balances exceeding 60 days result in a financial hold preventing registration, transcript requests, and diploma release.",
+      "predicted_answer": "According to the context, the late payment fees for tuition are as follows:\n\n- A late payment fee of $100 is assessed if tuition is not paid by the deadline and the student is not enrolled in a payment plan.\n- An additional $25 per week is charged for each week the balance remains unpaid, up to a maximum of $200 in additional late fees.\n\nNote that the $100 fee is a one-time fee, and the $25 per week fee is charged for each week the balance remains unpaid, up to a maximum of $200.",
+      "context_used": "from the plan\n     and the full remaining balance becomes due immediately.\n\n5. LATE PAYMENT FEES\n   - A late payment fee of $100 is assessed if tuition is not paid by the\n     deadline and the student is not enrolled in a payment plan.\n   - An additional $25 per week is charged for each week the bal\n\n---\n\nonal $25 per week is charged for each week the balance remains\n     unpaid, up to a maximum of $200 in additional late fees.\n   - Students with outstanding balances exceeding 60 days will have a\n     financial hold placed on their account, preventing registration for\n     future semesters, transcrip\n\n---\n\niewed annually and may increase by up to 5% per\n     academic year.\n\n2. PAYMENT DEADLINES\n   - Full payment or enrollment in a payment plan is required by the tuition\n     deadline, which is 2 weeks before the start of each semester.\n   - Students who fail to pay by the deadline may have their regis",
+      "sources": [
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 0.4703,
+        "cost": 2.648e-05
+      },
+      "tokens": {
+        "prompt_tokens": 352,
+        "completion_tokens": 111,
+        "total_tokens": 463
+      },
+      "failed": false
+    },
+    {
+      "id": "Q019",
+      "category": "payment",
+      "question": "What are the requirements to maintain a merit-based scholarship?",
+      "ground_truth": "Merit-based scholarships require a minimum cumulative GPA of 3.0 for renewal, reviewed at the end of each academic year. Scholarship recipients must maintain full-time enrollment of 12 or more credit hours to retain their scholarship.",
+      "predicted_answer": "To maintain a merit-based scholarship, a student must meet the following requirement:\n\n- Retain a minimum cumulative GPA of 3.0.",
+      "context_used": "demic year.\n   - Merit-based scholarships require a minimum cumulative GPA of 3.0 for\n     renewal. GPA is reviewed at the end of each academic year.\n   - Need-based grants do not require repayment. Student loans must be\n     repaid according to federal and institutional loan terms.\n   - Work-study\n\n---\n\nAND SCHOLARSHIPS\n   - Financial aid packages are determined by the Financial Aid Office based\n     on the FAFSA application and institutional aid applications.\n   - The FAFSA deadline for priority consideration is March 1st for the\n     following academic year.\n   - Merit-based scholarships require\n\n---\n\nurs) to retain their scholarship.\n\n8. THIRD-PARTY BILLING\n   - Students sponsored by employers, government agencies, or embassies\n     must submit an official authorization letter or purchase order to the\n     Bursar's Office before the tuition deadline.\n   - The authorization must specify the amoun",
+      "sources": [
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 1.7978,
+        "cost": 1.947e-05
+      },
+      "tokens": {
+        "prompt_tokens": 343,
+        "completion_tokens": 29,
+        "total_tokens": 372
+      },
+      "failed": false
+    },
+    {
+      "id": "Q020",
+      "category": "payment",
+      "question": "What is the per-credit-hour tuition rate?",
+      "ground_truth": "The current tuition rate is $500 per credit hour for undergraduate students and $750 per credit hour for graduate students. Tuition rates are reviewed annually and may increase by up to 5% per academic year.",
+      "predicted_answer": "The per-credit-hour tuition rate varies based on the student's level of study. \n\nFor undergraduate students, the current rate is $500 per credit hour. \n\nFor graduate students, the current rate is $750 per credit hour.",
+      "context_used": "rged on a per-credit-hour basis. The current rate is $500\n     per credit hour for undergraduate students and $750 per credit hour for\n     graduate students.\n   - Mandatory fees include: Student Activity Fee ($150/semester), Technology\n     Fee ($200/semester), Health Services Fee ($100/semester),\n\n---\n\n================================================================================\nUNIVERSITY PAYMENT & FINANCIAL RULES & POLICIES\n================================================================================\n\n1. TUITION AND FEES\n   - Tuition is charged on a per-credit-hour basis. The current rate\n\n---\n\n0/semester), Health Services Fee ($100/semester), and Library\n     Fee ($75/semester).\n   - Lab fees of $50-$200 per course apply to courses with laboratory\n     components. The specific fee is listed in the course catalog.\n   - Tuition rates are reviewed annually and may increase by up to 5% per",
+      "sources": [
+        "payment_rules.txt"
+      ],
+      "metrics": {
+        "accuracy": 0.95,
+        "hallucination": 0.0,
+        "latency": 2.1543,
+        "cost": 2.029e-05
+      },
+      "tokens": {
+        "prompt_tokens": 329,
+        "completion_tokens": 48,
+        "total_tokens": 377
+      },
+      "failed": false
+    }
+  ]
+}

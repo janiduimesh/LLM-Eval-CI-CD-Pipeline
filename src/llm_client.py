@@ -1,8 +1,9 @@
 import time
-from openai import OpenAI
+import re
+from groq import Groq
 
 from src.config import (
-    OPENAI_API_KEY,
+    GROQ_API_KEY,
     MODEL_NAME,
     TEMPERATURE,
     MAX_TOKENS,
@@ -11,26 +12,37 @@ from src.config import (
 )
 
 
+SYSTEM_INSTRUCTION = (
+    "You are a helpful university assistant. When answering the student's question, "
+    "provide a clear, complete, and comprehensive response based strictly on the provided context. "
+    "Be sure to include all relevant numbers, deadlines, time limits, conditions, exceptions, and specific details. "
+    "Do not omit important details. "
+    "If the context does not contain enough information to answer, say "
+    "'I don't have enough information to answer this question based on the available rules.'"
+)
+
+
 class LLMClient:
     """
-    Wrapper around the OpenAI Chat Completions API.
+    Wrapper around the Groq API (groq SDK).
 
     Tracks latency, token usage, and cost per query.
     """
 
     def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or OPENAI_API_KEY
-        self.model = model or MODEL_NAME
-        self.client = OpenAI(api_key=self.api_key)
+        self.api_key = api_key or GROQ_API_KEY
+        self.model_name = model or MODEL_NAME
 
         if not self.api_key:
             raise ValueError(
-                "OPENAI_API_KEY is not set. Please set it in .env or as an environment variable."
+                "GROQ_API_KEY is not set. Please set it in .env or as an environment variable."
             )
 
-    def generate(self, prompt: str, context: str, max_retries: int = 3) -> dict:
+        self.client = Groq(api_key=self.api_key)
+
+    def generate(self, prompt: str, context: str, max_retries: int = 5) -> dict:
         """
-        Generate a response from the LLM.
+        Generate a response from the LLM via Groq.
 
         Args:
             prompt: The user's question.
@@ -40,14 +52,6 @@ class LLMClient:
         Returns:
             Dict with keys: answer, usage, latency, cost
         """
-        system_message = (
-            "You are a helpful university assistant. Answer the student's question "
-            "strictly based on the provided context. If the context does not contain "
-            "enough information to answer, say 'I don't have enough information to "
-            "answer this question based on the available rules.' Do not make up "
-            "information or add details not present in the context."
-        )
-
         user_message = (
             f"Context:\n{context}\n\n"
             f"Question: {prompt}\n\n"
@@ -55,7 +59,7 @@ class LLMClient:
         )
 
         messages = [
-            {"role": "system", "content": system_message},
+            {"role": "system", "content": SYSTEM_INSTRUCTION},
             {"role": "user", "content": user_message},
         ]
 
@@ -65,7 +69,7 @@ class LLMClient:
                 start_time = time.time()
 
                 response = self.client.chat.completions.create(
-                    model=self.model,
+                    model=self.model_name,
                     messages=messages,
                     temperature=TEMPERATURE,
                     max_tokens=MAX_TOKENS,
@@ -75,10 +79,13 @@ class LLMClient:
 
                 # Extract response data
                 answer = response.choices[0].message.content.strip()
+
+                # Extract token usage
+                usage_obj = response.usage
                 usage = {
-                    "prompt_tokens": response.usage.prompt_tokens,
-                    "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens,
+                    "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
+                    "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
+                    "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
                 }
 
                 # Calculate cost
@@ -96,9 +103,17 @@ class LLMClient:
 
             except Exception as e:
                 last_error = e
-                print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                err_str = str(e)
+
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    if "429" in err_str or "rate_limit" in err_str.lower() or "quota" in err_str.lower():
+                        match = re.search(r"try again in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
+                        wait_sec = float(match.group(1)) + 1.0 if match else 5.0 * (attempt + 1)
+                        print(f"[LLMClient] ⏳ Groq Rate Limit (429) hit. Waiting {wait_sec:.1f}s before retry...")
+                        time.sleep(wait_sec)
+                    else:
+                        print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                        time.sleep(2 ** attempt)
 
         raise RuntimeError(
             f"[LLMClient] All {max_retries} attempts failed. Last error: {last_error}"

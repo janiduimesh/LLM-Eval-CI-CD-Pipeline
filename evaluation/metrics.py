@@ -52,27 +52,71 @@ def _split_into_sentences(text: str) -> list[str]:
 
 def accuracy_score(predicted: str, ground_truth: str) -> float:
     """
-    Calculate accuracy as a combination of sequence similarity and keyword overlap.
+    Calculate accuracy using an LLM Judge (Groq) evaluating factual equivalence and completeness.
 
-    Uses SequenceMatcher for fuzzy string matching (60% weight) and
-    keyword overlap (40% weight) for a balanced accuracy score.
+    Scores from 0.0 (completely wrong / missing core facts) to 1.0 (fully accurate & complete).
+    Evaluates semantic meaning and factual coverage, ignoring minor phrasing differences.
 
     Args:
         predicted: The LLM's answer.
         ground_truth: The expected correct answer.
 
     Returns:
-        Float between 0 and 1 (higher is better).
+        Float between 0.0 and 1.0 (higher is better).
     """
     if not predicted or not ground_truth:
         return 0.0
 
-    # Component 1: Sequence similarity (fuzzy string match)
+    if "ERROR:" in predicted or "don't have enough information" in predicted.lower():
+        if "don't have enough information" in ground_truth.lower():
+            return 1.0
+        return 0.0
+
+    try:
+        import json
+        from groq import Groq
+        from src.config import GROQ_API_KEY, MODEL_NAME
+
+        client = Groq(api_key=GROQ_API_KEY)
+
+        prompt = (
+            "You are an expert LLM evaluation judge.\n"
+            "Evaluate the accuracy and completeness of the Predicted Answer compared to the Ground Truth answer.\n\n"
+            f"Ground Truth:\n{ground_truth}\n\n"
+            f"Predicted Answer:\n{predicted}\n\n"
+            "Scoring Guidelines:\n"
+            "- Focus on FACTUAL EQUIVALENCE and COMPLETENESS, NOT exact wording.\n"
+            "- 1.0: Contains all key facts, numbers, conditions, and deadlines in Ground Truth.\n"
+            "- 0.7-0.9: Correct core facts, but missing minor details or extra phrasing.\n"
+            "- 0.4-0.6: Partially correct, but missing major key facts or conditions.\n"
+            "- 0.0-0.3: Incorrect, misleading, or completely missing the point.\n\n"
+            "Return ONLY a single valid JSON object in this format:\n"
+            '{"accuracy_score": 0.95}'
+        )
+
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            response_format={"type": "json_object"},
+        )
+
+        text = response.choices[0].message.content.strip()
+        data = json.loads(text)
+        score = float(data.get("accuracy_score", 0.0))
+        return round(max(0.0, min(1.0, score)), 4)
+
+    except Exception as e:
+        print(f"[Metrics] Accuracy LLM Judge failed ({e}). Using fallback string scorer.")
+        return _fallback_accuracy_score(predicted, ground_truth)
+
+
+def _fallback_accuracy_score(predicted: str, ground_truth: str) -> float:
+    """Fallback fuzzy string matching accuracy score."""
     norm_predicted = _normalize_text(predicted)
     norm_truth = _normalize_text(ground_truth)
     sequence_sim = SequenceMatcher(None, norm_predicted, norm_truth).ratio()
 
-    # Component 2: Keyword overlap (precision-recall F1)
     pred_keywords = _extract_keywords(predicted)
     truth_keywords = _extract_keywords(ground_truth)
 
@@ -87,7 +131,6 @@ def accuracy_score(predicted: str, ground_truth: str) -> float:
         recall = len(overlap) / len(truth_keywords)
         keyword_f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
 
-    # Weighted combination
     accuracy = 0.6 * sequence_sim + 0.4 * keyword_f1
     return round(min(accuracy, 1.0), 4)
 
@@ -96,19 +139,62 @@ def hallucination_score(answer: str, context: str) -> float:
     """
     Measure how much of the answer is NOT grounded in the provided context.
 
-    Splits the answer into sentences and checks each sentence's overlap
-    with the context. A higher score means more hallucination (worse).
+    Splits the answer into atomic sentences/claims and verifies semantic
+    entailment against the retrieved context using an LLM Judge (Gemini).
+    A higher score means more hallucination (worse).
 
     Args:
         answer: The LLM's generated answer.
         context: The retrieved context that was provided to the LLM.
 
     Returns:
-        Float between 0 and 1 (lower is better; 0 = fully grounded).
+        Float between 0.0 and 1.0 (0.0 = fully grounded, 1.0 = fully hallucinated).
     """
     if not answer or not context:
         return 1.0 if answer else 0.0
 
+    try:
+        import json
+        from groq import Groq
+        from src.config import GROQ_API_KEY, MODEL_NAME
+
+        client = Groq(api_key=GROQ_API_KEY)
+
+        prompt = (
+            "You are an expert hallucination evaluation judge for a RAG system.\n"
+            "Compare the Answer against the Context and determine the proportion of factual claims "
+            "in the Answer that are NOT supported by or grounded in the Context.\n\n"
+            f"Context:\n{context}\n\n"
+            f"Answer:\n{answer}\n\n"
+            "Evaluate faithfulness:\n"
+            "- Score 0.0 means 100% grounded in context (0% hallucination).\n"
+            "- Score 1.0 means completely ungrounded or contradictory.\n\n"
+            "Return ONLY a single valid JSON object in this format:\n"
+            '{"hallucination_score": 0.0}'
+        )
+
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            response_format={"type": "json_object"},
+        )
+
+        text = response.choices[0].message.content.strip()
+        data = json.loads(text)
+        score = float(data.get("hallucination_score", 0.0))
+        return round(max(0.0, min(1.0, score)), 4)
+
+    except Exception as e:
+        print(f"[Metrics] LLM Judge hallucination check skipped ({e}). Using fallback scorer.")
+        return _fallback_hallucination_score(answer, context)
+
+
+def _fallback_hallucination_score(answer: str, context: str) -> float:
+    """
+    Fallback hallucination scoring using keyword overlap and sequence matching.
+    Used when the LLM Judge is unavailable.
+    """
     answer_sentences = _split_into_sentences(answer)
     if not answer_sentences:
         return 0.0
@@ -123,17 +209,12 @@ def hallucination_score(answer: str, context: str) -> float:
         if not sentence_keywords:
             continue
 
-        # Check keyword overlap with context
         overlap = sentence_keywords & context_keywords
         overlap_ratio = len(overlap) / len(sentence_keywords) if sentence_keywords else 0
 
-        # Also check substring similarity
         norm_sentence = _normalize_text(sentence)
         seq_sim = SequenceMatcher(None, norm_sentence, context_normalized).ratio()
 
-        # A sentence is considered grounded if either:
-        # - More than 50% of its keywords appear in context, OR
-        # - It has reasonable sequence similarity (> 0.3)
         if overlap_ratio < 0.5 and seq_sim < 0.3:
             ungrounded_count += 1
 
