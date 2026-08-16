@@ -9,18 +9,22 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# ─── LLM Configuration ───────────────────────────────────────────────────────
+# ─── LLM Configuration (Groq for generation) ────────────────────────────────
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+MODEL_NAME = os.getenv("MODEL_NAME", "llama-3.1-8b-instant")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
 
-# ─── Cost Configuration (USD per token) ──────────────────────────────────────
+# ─── Embedding Configuration (Gemini for embeddings) ─────────────────────────
 
-# Default rates for Gemini 2.0 Flash
-INPUT_COST_PER_TOKEN = float(os.getenv("INPUT_COST_PER_TOKEN", "0.0000001"))
-OUTPUT_COST_PER_TOKEN = float(os.getenv("OUTPUT_COST_PER_TOKEN", "0.0000004"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-004")
+
+# ─── Cost Configuration (USD per token for Llama 3.1 8B on Groq) ────────────
+
+INPUT_COST_PER_TOKEN = float(os.getenv("INPUT_COST_PER_TOKEN", "0.00000005"))
+OUTPUT_COST_PER_TOKEN = float(os.getenv("OUTPUT_COST_PER_TOKEN", "0.00000008"))
 
 # ─── Paths ───────────────────────────────────────────────────────────────────
 
@@ -36,8 +40,8 @@ CHROMA_DB_DIR = os.path.join(PROJECT_ROOT, "chroma_db")
 
 # ─── Retriever Configuration ────────────────────────────────────────────────
 
-CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "300"))
-CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
+CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "800"))
+CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "200"))
 TOP_K_RETRIEVAL = int(os.getenv("TOP_K_RETRIEVAL", "3"))
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
 

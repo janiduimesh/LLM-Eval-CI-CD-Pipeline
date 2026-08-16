@@ -78,8 +78,9 @@ class Retriever:
         self._sync_knowledge_base()
 
     def _compute_kb_hash(self) -> str:
-        """Compute a hash of all knowledge base files to detect changes."""
+        """Compute a hash of all knowledge base files and chunk settings to detect changes."""
         hasher = hashlib.md5()
+        hasher.update(f"cs_{self.chunk_size}_co_{self.chunk_overlap}".encode("utf-8"))
         txt_files = sorted(glob.glob(os.path.join(self.knowledge_base_dir, "*.txt")))
         for filepath in txt_files:
             with open(filepath, "rb") as f:
