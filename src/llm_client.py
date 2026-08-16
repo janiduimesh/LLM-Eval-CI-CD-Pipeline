@@ -1,8 +1,9 @@
 import time
-from openai import OpenAI
+from google import genai
+from google.genai import types
 
 from src.config import (
-    OPENAI_API_KEY,
+    GEMINI_API_KEY,
     MODEL_NAME,
     TEMPERATURE,
     MAX_TOKENS,
@@ -11,24 +12,34 @@ from src.config import (
 )
 
 
+SYSTEM_INSTRUCTION = (
+    "You are a helpful university assistant. Answer the student's question "
+    "strictly based on the provided context. If the context does not contain "
+    "enough information to answer, say 'I don't have enough information to "
+    "answer this question based on the available rules.' Do not make up "
+    "information or add details not present in the context."
+)
+
+
 class LLMClient:
     """
-    Wrapper around the OpenAI Chat Completions API.
+    Wrapper around the Google Gemini API (google-genai SDK).
 
     Tracks latency, token usage, and cost per query.
     """
 
     def __init__(self, api_key: str = None, model: str = None):
-        self.api_key = api_key or OPENAI_API_KEY
-        self.model = model or MODEL_NAME
-        self.client = OpenAI(api_key=self.api_key)
+        self.api_key = api_key or GEMINI_API_KEY
+        self.model_name = (model or MODEL_NAME).replace("models/", "")
 
         if not self.api_key:
             raise ValueError(
-                "OPENAI_API_KEY is not set. Please set it in .env or as an environment variable."
+                "GEMINI_API_KEY is not set. Please set it in .env or as an environment variable."
             )
 
-    def generate(self, prompt: str, context: str, max_retries: int = 3) -> dict:
+        self.client = genai.Client(api_key=self.api_key)
+
+    def generate(self, prompt: str, context: str, max_retries: int = 5) -> dict:
         """
         Generate a response from the LLM.
 
@@ -40,45 +51,38 @@ class LLMClient:
         Returns:
             Dict with keys: answer, usage, latency, cost
         """
-        system_message = (
-            "You are a helpful university assistant. Answer the student's question "
-            "strictly based on the provided context. If the context does not contain "
-            "enough information to answer, say 'I don't have enough information to "
-            "answer this question based on the available rules.' Do not make up "
-            "information or add details not present in the context."
-        )
-
         user_message = (
             f"Context:\n{context}\n\n"
             f"Question: {prompt}\n\n"
             f"Answer based only on the context above:"
         )
 
-        messages = [
-            {"role": "system", "content": system_message},
-            {"role": "user", "content": user_message},
-        ]
-
         last_error = None
         for attempt in range(max_retries):
             try:
                 start_time = time.time()
 
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    temperature=TEMPERATURE,
-                    max_tokens=MAX_TOKENS,
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=user_message,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        temperature=TEMPERATURE,
+                        max_output_tokens=MAX_TOKENS,
+                    ),
                 )
 
                 latency = time.time() - start_time
 
                 # Extract response data
-                answer = response.choices[0].message.content.strip()
+                answer = response.text.strip()
+
+                # Extract token usage from Gemini's usage metadata
+                usage_metadata = response.usage_metadata
                 usage = {
-                    "prompt_tokens": response.usage.prompt_tokens,
-                    "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens,
+                    "prompt_tokens": getattr(usage_metadata, "prompt_token_count", 0) or 0,
+                    "completion_tokens": getattr(usage_metadata, "candidates_token_count", 0) or 0,
+                    "total_tokens": getattr(usage_metadata, "total_token_count", 0) or 0,
                 }
 
                 # Calculate cost
@@ -96,9 +100,26 @@ class LLMClient:
 
             except Exception as e:
                 last_error = e
-                print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                err_str = str(e)
+
                 if attempt < max_retries - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    # Check for rate limit / 429 quota exhaustion
+                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "quota" in err_str.lower():
+                        import re
+                        match = re.search(r"retry in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
+                        match_delay = re.search(r"retryDelay': '(\d+)s'", err_str)
+                        if match:
+                            wait_sec = float(match.group(1)) + 2.0
+                        elif match_delay:
+                            wait_sec = float(match_delay.group(1)) + 2.0
+                        else:
+                            wait_sec = 15.0 * (attempt + 1)
+                        
+                        print(f"[LLMClient] ⏳ Rate limit (429) hit. Waiting {wait_sec:.1f}s before retry (Attempt {attempt + 1}/{max_retries})...")
+                        time.sleep(wait_sec)
+                    else:
+                        print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")
+                        time.sleep(2 ** attempt)
 
         raise RuntimeError(
             f"[LLMClient] All {max_retries} attempts failed. Last error: {last_error}"

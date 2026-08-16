@@ -96,19 +96,67 @@ def hallucination_score(answer: str, context: str) -> float:
     """
     Measure how much of the answer is NOT grounded in the provided context.
 
-    Splits the answer into sentences and checks each sentence's overlap
-    with the context. A higher score means more hallucination (worse).
+    Splits the answer into atomic sentences/claims and verifies semantic
+    entailment against the retrieved context using an LLM Judge (Gemini).
+    A higher score means more hallucination (worse).
 
     Args:
         answer: The LLM's generated answer.
         context: The retrieved context that was provided to the LLM.
 
     Returns:
-        Float between 0 and 1 (lower is better; 0 = fully grounded).
+        Float between 0.0 and 1.0 (0.0 = fully grounded, 1.0 = fully hallucinated).
     """
     if not answer or not context:
         return 1.0 if answer else 0.0
 
+    try:
+        import json
+        from google import genai
+        from src.config import GEMINI_API_KEY, MODEL_NAME
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        model_name = MODEL_NAME.replace("models/", "")
+
+        prompt = (
+            "You are an expert hallucination evaluation judge for a RAG system.\n"
+            "Compare the Answer against the Context and determine the proportion of factual claims "
+            "in the Answer that are NOT supported by or grounded in the Context.\n\n"
+            f"Context:\n{context}\n\n"
+            f"Answer:\n{answer}\n\n"
+            "Evaluate faithfulness:\n"
+            "- Score 0.0 means 100% grounded in context (0% hallucination).\n"
+            "- Score 1.0 means completely ungrounded or contradictory.\n\n"
+            "Return ONLY a single valid JSON object in this format:\n"
+            '{"hallucination_score": 0.0}'
+        )
+
+        response = client.models.generate_content(
+            model=model_name,
+            contents=prompt,
+        )
+
+        text = response.text.strip()
+        # Clean JSON markdown fences if present
+        text = re.sub(r"^```json\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"^```\s*", "", text)
+        text = re.sub(r"\s*```$", "", text)
+        text = text.strip()
+
+        data = json.loads(text)
+        score = float(data.get("hallucination_score", 0.0))
+        return round(max(0.0, min(1.0, score)), 4)
+
+    except Exception as e:
+        print(f"[Metrics] LLM Judge hallucination check skipped ({e}). Using fallback scorer.")
+        return _fallback_hallucination_score(answer, context)
+
+
+def _fallback_hallucination_score(answer: str, context: str) -> float:
+    """
+    Fallback hallucination scoring using keyword overlap and sequence matching.
+    Used when the LLM Judge is unavailable.
+    """
     answer_sentences = _split_into_sentences(answer)
     if not answer_sentences:
         return 0.0
@@ -123,17 +171,12 @@ def hallucination_score(answer: str, context: str) -> float:
         if not sentence_keywords:
             continue
 
-        # Check keyword overlap with context
         overlap = sentence_keywords & context_keywords
         overlap_ratio = len(overlap) / len(sentence_keywords) if sentence_keywords else 0
 
-        # Also check substring similarity
         norm_sentence = _normalize_text(sentence)
         seq_sim = SequenceMatcher(None, norm_sentence, context_normalized).ratio()
 
-        # A sentence is considered grounded if either:
-        # - More than 50% of its keywords appear in context, OR
-        # - It has reasonable sequence similarity (> 0.3)
         if overlap_ratio < 0.5 and seq_sim < 0.3:
             ungrounded_count += 1
 

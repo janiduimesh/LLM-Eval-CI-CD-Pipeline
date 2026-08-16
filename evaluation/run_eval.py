@@ -6,6 +6,7 @@ computes metrics, checks thresholds, and generates reports.
 
 import json
 import sys
+import time
 
 from src.rag_chatbot import RAGChatbot
 from src.config import GOLDEN_DATASET_PATH, EVAL_RESULTS_PATH, HISTORY_CSV_PATH, THRESHOLDS
@@ -113,6 +114,9 @@ def run(dataset_path: str = None) -> int:
 
             status = "❌ FAIL" if failed else "✅ PASS"
             print(f"         {status}  Acc={acc:.2%}  Hall={hall:.2%}  Lat={lat:.2f}s  Cost=${cst:.6f}")
+
+            # Pacing sleep between questions to respect free-tier rate limits
+            time.sleep(1.0)
 
         except Exception as e:
             print(f"         ⚠️  ERROR: {e}")

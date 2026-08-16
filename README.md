@@ -108,7 +108,7 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# Edit .env and set your OPENAI_API_KEY
+# Edit .env and set your GEMINI_API_KEY
 ```
 
 ### 3. Run Evaluation
@@ -146,8 +146,8 @@ All settings can be configured via environment variables (see `.env.example`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `OPENAI_API_KEY` | — | **Required.** Your OpenAI API key |
-| `MODEL_NAME` | `gpt-3.5-turbo` | OpenAI model to use |
+| `GEMINI_API_KEY` | — | **Required.** Your Google Gemini API key |
+| `MODEL_NAME` | `gemini-2.0-flash` | Gemini model to use |
 | `TEMPERATURE` | `0.2` | LLM temperature |
 | `MAX_TOKENS` | `512` | Max tokens per response |
 | `ACCURACY_THRESHOLD` | `0.7` | Minimum accuracy (70%) |
@@ -166,9 +166,9 @@ The GitHub Actions workflow (`.github/workflows/llm_eval.yml`) runs automaticall
 
 ### Setup
 
-1. Add your `OPENAI_API_KEY` as a **GitHub Secret**:
+1. Add your `GEMINI_API_KEY` as a **GitHub Secret**:
    - Go to Settings → Secrets and variables → Actions → New repository secret
-   - Name: `OPENAI_API_KEY`, Value: your key
+   - Name: `GEMINI_API_KEY`, Value: your key
 
 2. (Optional) Set `MODEL_NAME` as a **GitHub Variable** to override the default model.
 
@@ -203,8 +203,9 @@ Each entry has:
 
 ## 🛠 Tech Stack
 
-- **LLM**: OpenAI GPT (3.5-turbo / 4)
-- **Retrieval**: TF-IDF + Cosine Similarity (scikit-learn)
+- **LLM**: Google Gemini (2.0 Flash)
+- **Embeddings**: Google text-embedding-004
+- **Vector Store**: ChromaDB (persistent, local)
 - **Evaluation**: Custom metrics (SequenceMatcher, keyword F1)
 - **Dashboard**: Streamlit + Plotly
 - **CI/CD**: GitHub Actions

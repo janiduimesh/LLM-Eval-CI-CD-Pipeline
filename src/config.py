@@ -11,16 +11,16 @@ load_dotenv()
 
 # ─── LLM Configuration ───────────────────────────────────────────────────────
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+MODEL_NAME = os.getenv("MODEL_NAME", "gemini-2.5-flash")
 TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "512"))
 
 # ─── Cost Configuration (USD per token) ──────────────────────────────────────
 
-# Default rates for gpt-3.5-turbo (as of 2024)
-INPUT_COST_PER_TOKEN = float(os.getenv("INPUT_COST_PER_TOKEN", "0.0000015"))
-OUTPUT_COST_PER_TOKEN = float(os.getenv("OUTPUT_COST_PER_TOKEN", "0.000002"))
+# Default rates for Gemini 2.0 Flash
+INPUT_COST_PER_TOKEN = float(os.getenv("INPUT_COST_PER_TOKEN", "0.0000001"))
+OUTPUT_COST_PER_TOKEN = float(os.getenv("OUTPUT_COST_PER_TOKEN", "0.0000004"))
 
 # ─── Paths ───────────────────────────────────────────────────────────────────
 
@@ -32,12 +32,14 @@ RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 GOLDEN_DATASET_PATH = os.path.join(EVAL_DATA_DIR, "golden_dataset.json")
 EVAL_RESULTS_PATH = os.path.join(RESULTS_DIR, "eval_results.json")
 HISTORY_CSV_PATH = os.path.join(RESULTS_DIR, "history.csv")
+CHROMA_DB_DIR = os.path.join(PROJECT_ROOT, "chroma_db")
 
 # ─── Retriever Configuration ────────────────────────────────────────────────
 
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "300"))
 CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", "50"))
 TOP_K_RETRIEVAL = int(os.getenv("TOP_K_RETRIEVAL", "3"))
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
 
 # ─── Evaluation Thresholds ──────────────────────────────────────────────────
 # These thresholds determine pass/fail for the CI/CD pipeline.
