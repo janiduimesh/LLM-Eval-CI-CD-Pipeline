@@ -45,7 +45,6 @@ class RAGChatbot:
                 - cost: Estimated cost in USD
                 - tokens: Token usage breakdown
         """
-        # Step 1: Retrieve relevant context
         retrieved_chunks = self.retriever.retrieve(question, top_k=TOP_K_RETRIEVAL)
 
         if not retrieved_chunks:
@@ -59,7 +58,6 @@ class RAGChatbot:
                 "tokens": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
             }
 
-        # Step 2: Build context string from retrieved chunks
         context_parts = []
         sources = []
         scores = []
@@ -70,13 +68,11 @@ class RAGChatbot:
 
         context_string = "\n\n---\n\n".join(context_parts)
 
-        # Step 3: Call the LLM
         llm_result = self.llm_client.generate(
             prompt=question,
             context=context_string,
         )
 
-        # Step 4: Package the result
         return {
             "answer": llm_result["answer"],
             "context_used": context_string,
