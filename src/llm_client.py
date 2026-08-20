@@ -77,10 +77,8 @@ class LLMClient:
 
                 latency = time.time() - start_time
 
-                # Extract response data
                 answer = response.choices[0].message.content.strip()
 
-                # Extract token usage
                 usage_obj = response.usage
                 usage = {
                     "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
@@ -88,7 +86,6 @@ class LLMClient:
                     "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
                 }
 
-                # Calculate cost
                 cost = (
                     usage["prompt_tokens"] * INPUT_COST_PER_TOKEN
                     + usage["completion_tokens"] * OUTPUT_COST_PER_TOKEN

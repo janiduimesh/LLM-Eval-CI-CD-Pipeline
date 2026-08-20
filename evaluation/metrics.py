@@ -140,7 +140,7 @@ def hallucination_score(answer: str, context: str) -> float:
     Measure how much of the answer is NOT grounded in the provided context.
 
     Splits the answer into atomic sentences/claims and verifies semantic
-    entailment against the retrieved context using an LLM Judge (Gemini).
+    entailment against the retrieved context using an LLM Judge (Groq).
     A higher score means more hallucination (worse).
 
     Args:

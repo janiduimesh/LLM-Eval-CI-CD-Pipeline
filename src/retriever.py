@@ -58,23 +58,19 @@ class Retriever:
         self.chunk_size = chunk_size or CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or CHUNK_OVERLAP
 
-        # Initialize ChromaDB with persistent storage
         self.chroma_client = chromadb.PersistentClient(path=CHROMA_DB_DIR)
 
-        # Use Google Gemini embeddings
         self.embedding_fn = GeminiEmbeddingFunction(
             api_key=GEMINI_API_KEY,
             model_name=EMBEDDING_MODEL,
         )
 
-        # Get or create the collection
         self.collection = self.chroma_client.get_or_create_collection(
             name=self.COLLECTION_NAME,
             embedding_function=self.embedding_fn,
             metadata={"hnsw:space": "cosine"},
         )
 
-        # Load and index documents if the collection is empty or stale
         self._sync_knowledge_base()
 
     def _compute_kb_hash(self) -> str:
@@ -92,7 +88,6 @@ class Retriever:
         kb_hash = self._compute_kb_hash()
         existing_count = self.collection.count()
 
-        # Check if we need to re-index by comparing stored hash
         metadata = self.collection.metadata or {}
         stored_hash = metadata.get("kb_hash", "")
 
@@ -100,20 +95,16 @@ class Retriever:
             print(f"[Retriever] ChromaDB collection '{self.COLLECTION_NAME}' is up to date ({existing_count} chunks).")
             return
 
-        # Re-index: clear and reload
         if existing_count > 0:
             print(f"[Retriever] Knowledge base changed. Re-indexing...")
-            # Delete all existing documents
             all_ids = self.collection.get()["ids"]
             if all_ids:
                 self.collection.delete(ids=all_ids)
 
-        # Load, chunk, and add documents
         chunks = self._load_and_chunk()
         if not chunks:
             raise ValueError("No chunks to index. Check knowledge base directory.")
 
-        # Add chunks to ChromaDB in batches
         batch_size = 100
         for i in range(0, len(chunks), batch_size):
             batch = chunks[i:i + batch_size]
@@ -123,7 +114,6 @@ class Retriever:
                 metadatas=[{"source": c["source"], "start_char": c["start_char"]} for c in batch],
             )
 
-        # Update collection metadata with the knowledge base hash
         self.collection.modify(metadata={"kb_hash": kb_hash})
 
         print(f"[Retriever] Indexed {len(chunks)} chunks into ChromaDB collection '{self.COLLECTION_NAME}'.")
