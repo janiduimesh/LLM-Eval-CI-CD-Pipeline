@@ -1,8 +1,3 @@
-"""
-ChromaDB-based retriever for the knowledge base.
-Loads .txt files, chunks them, and stores/retrieves via ChromaDB with Google Gemini embeddings.
-"""
-
 import os
 import glob
 import hashlib
@@ -46,9 +41,6 @@ class Retriever:
     """
     ChromaDB-powered document retriever with Google Gemini embeddings.
 
-    Loads all .txt files from the knowledge base directory, splits them into
-    overlapping chunks, and stores them in a persistent ChromaDB collection.
-    Uses Google's text-embedding-004 for semantic similarity search.
     """
 
     COLLECTION_NAME = "university_rules"
@@ -135,7 +127,6 @@ class Retriever:
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # Split into chunks with overlap
             start = 0
             while start < len(content):
                 end = start + self.chunk_size
@@ -154,18 +145,6 @@ class Retriever:
         return chunks
 
     def retrieve(self, query: str, top_k: int = None) -> list[dict]:
-        """
-        Retrieve top-k most relevant chunks for a given query.
-
-        Uses ChromaDB's semantic similarity search with Gemini embeddings.
-
-        Args:
-            query: The search query.
-            top_k: Number of top results to return. Defaults to config TOP_K_RETRIEVAL.
-
-        Returns:
-            List of dicts with keys: text, source, score.
-        """
         top_k = top_k or TOP_K_RETRIEVAL
 
         results = self.collection.query(
@@ -181,7 +160,6 @@ class Retriever:
                 results["metadatas"][0],
                 results["distances"][0],
             ):
-                # ChromaDB returns cosine distance; convert to similarity score
                 similarity = 1 - distance
                 if similarity > 0:
                     retrieved.append({

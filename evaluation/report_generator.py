@@ -1,8 +1,3 @@
-"""
-Report generator for the evaluation pipeline.
-Handles JSON result output, CSV history logging, and stdout summary printing.
-"""
-
 import os
 import json
 import csv
@@ -10,13 +5,7 @@ from datetime import datetime, timezone
 
 
 def generate_json_report(results: list[dict], filepath: str) -> None:
-    """
-    Write detailed per-question evaluation results to a JSON file.
-
-    Args:
-        results: List of per-question result dicts.
-        filepath: Path to the output JSON file.
-    """
+    
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     output = {
@@ -32,15 +21,7 @@ def generate_json_report(results: list[dict], filepath: str) -> None:
 
 
 def append_to_history(summary: dict, filepath: str) -> None:
-    """
-    Append a summary row to the history CSV file.
-
-    Creates the file with headers if it doesn't exist.
-
-    Args:
-        summary: Aggregate metrics summary dict.
-        filepath: Path to the history CSV file.
-    """
+    
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     headers = [
@@ -85,13 +66,7 @@ def append_to_history(summary: dict, filepath: str) -> None:
 
 
 def print_summary(summary: dict, threshold_report: dict) -> None:
-    """
-    Pretty-print the evaluation summary to stdout.
-
-    Args:
-        summary: Aggregate metrics summary dict.
-        threshold_report: Per-metric pass/fail report from threshold_checker.
-    """
+    
     passed = summary.get("passed", False)
     status_emoji = "✅" if passed else "❌"
     status_text = "PASSED" if passed else "FAILED"

@@ -1,9 +1,3 @@
-"""
-Main evaluation runner.
-Loads the golden dataset, runs each question through the RAG chatbot,
-computes metrics, checks thresholds, and generates reports.
-"""
-
 import json
 import sys
 import time
@@ -36,15 +30,7 @@ def load_golden_dataset(filepath: str = None) -> list[dict]:
 
 
 def run(dataset_path: str = None) -> int:
-    """
-    Run the full evaluation pipeline.
-
-    Args:
-        dataset_path: Optional path to a custom golden dataset.
-
-    Returns:
-        Exit code: 0 for pass, 1 for fail.
-    """
+   
     print("=" * 60)
     print("  LLM EVALUATION PIPELINE — STARTING")
     print("=" * 60)

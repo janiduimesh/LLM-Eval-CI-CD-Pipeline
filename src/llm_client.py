@@ -23,11 +23,6 @@ SYSTEM_INSTRUCTION = (
 
 
 class LLMClient:
-    """
-    Wrapper around the Groq API (groq SDK).
-
-    Tracks latency, token usage, and cost per query.
-    """
 
     def __init__(self, api_key: str = None, model: str = None):
         self.api_key = api_key or GROQ_API_KEY
@@ -41,17 +36,7 @@ class LLMClient:
         self.client = Groq(api_key=self.api_key)
 
     def generate(self, prompt: str, context: str, max_retries: int = 5) -> dict:
-        """
-        Generate a response from the LLM via Groq.
-
-        Args:
-            prompt: The user's question.
-            context: Retrieved context to ground the response.
-            max_retries: Number of retry attempts on failure.
-
-        Returns:
-            Dict with keys: answer, usage, latency, cost
-        """
+        
         user_message = (
             f"Context:\n{context}\n\n"
             f"Question: {prompt}\n\n"

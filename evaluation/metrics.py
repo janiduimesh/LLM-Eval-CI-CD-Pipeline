@@ -1,14 +1,3 @@
-"""
-Evaluation metrics for the LLM Evaluation CI/CD Pipeline.
-
-Five metrics:
-  1. Accuracy (relevancy to ground truth)
-  2. Hallucination rate (faithfulness to context)
-  3. Latency (seconds per query)
-  4. Cost (USD per query)
-  5. Failed question detection (threshold breach check)
-"""
-
 import re
 from difflib import SequenceMatcher
 
@@ -51,12 +40,7 @@ def _split_into_sentences(text: str) -> list[str]:
 
 
 def accuracy_score(predicted: str, ground_truth: str) -> float:
-    """
-    Calculate accuracy using an LLM Judge (Groq) evaluating factual equivalence and completeness.
-
-    Scores from 0.0 (completely wrong / missing core facts) to 1.0 (fully accurate & complete).
-    Evaluates semantic meaning and factual coverage, ignoring minor phrasing differences.
-
+    """ 
     Args:
         predicted: The LLM's answer.
         ground_truth: The expected correct answer.
@@ -137,12 +121,6 @@ def _fallback_accuracy_score(predicted: str, ground_truth: str) -> float:
 
 def hallucination_score(answer: str, context: str) -> float:
     """
-    Measure how much of the answer is NOT grounded in the provided context.
-
-    Splits the answer into atomic sentences/claims and verifies semantic
-    entailment against the retrieved context using an LLM Judge (Groq).
-    A higher score means more hallucination (worse).
-
     Args:
         answer: The LLM's generated answer.
         context: The retrieved context that was provided to the LLM.
@@ -191,10 +169,7 @@ def hallucination_score(answer: str, context: str) -> float:
 
 
 def _fallback_hallucination_score(answer: str, context: str) -> float:
-    """
-    Fallback hallucination scoring using keyword overlap and sequence matching.
-    Used when the LLM Judge is unavailable.
-    """
+    
     answer_sentences = _split_into_sentences(answer)
     if not answer_sentences:
         return 0.0
@@ -223,30 +198,12 @@ def _fallback_hallucination_score(answer: str, context: str) -> float:
 
 
 def latency_metric(latency_seconds: float) -> float:
-    """
-    Pass-through metric for latency.
-
-    Args:
-        latency_seconds: Time taken for the LLM call.
-
-    Returns:
-        The latency value in seconds.
-    """
+   
     return round(latency_seconds, 4)
 
 
 def cost_metric(token_usage: dict, input_rate: float = None, output_rate: float = None) -> float:
-    """
-    Calculate the cost of a query based on token usage.
-
-    Args:
-        token_usage: Dict with prompt_tokens and completion_tokens.
-        input_rate: Cost per input token (USD). Uses config default if None.
-        output_rate: Cost per output token (USD). Uses config default if None.
-
-    Returns:
-        Cost in USD.
-    """
+    
     from src.config import INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN
 
     input_rate = input_rate or INPUT_COST_PER_TOKEN
@@ -265,19 +222,7 @@ def is_failed(
     cost: float,
     thresholds: dict,
 ) -> bool:
-    """
-    Determine if a single question's evaluation has failed any threshold.
-
-    Args:
-        accuracy: Accuracy score (higher is better).
-        hallucination: Hallucination rate (lower is better).
-        latency: Latency in seconds (lower is better).
-        cost: Cost in USD (lower is better).
-        thresholds: Dict with threshold values.
-
-    Returns:
-        True if any threshold is breached.
-    """
+    
     if accuracy < thresholds.get("accuracy", 0.7):
         return True
     if hallucination > thresholds.get("hallucination", 0.2):

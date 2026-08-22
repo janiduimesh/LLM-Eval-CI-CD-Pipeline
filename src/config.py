@@ -1,8 +1,3 @@
-"""
-Centralized configuration for the LLM Evaluation CI/CD Pipeline.
-Reads from environment variables with sensible defaults.
-"""
-
 import os
 from dotenv import load_dotenv
 

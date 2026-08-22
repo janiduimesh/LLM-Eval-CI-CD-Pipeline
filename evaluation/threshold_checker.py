@@ -1,28 +1,8 @@
-"""
-Threshold checker for the evaluation pipeline.
-Compares aggregate metrics against configured thresholds to determine pass/fail.
-"""
-
 from src.config import THRESHOLDS
 
 
 def check(summary: dict, thresholds: dict = None) -> tuple[bool, dict]:
-    """
-    Check if the evaluation summary passes all thresholds.
-
-    Args:
-        summary: Dict containing aggregate metrics:
-            - avg_accuracy: Average accuracy across all questions
-            - avg_hallucination: Average hallucination rate
-            - avg_latency: Average latency in seconds
-            - avg_cost: Average cost per query in USD
-            - failed_count: Number of individual questions that failed
-        thresholds: Optional custom thresholds dict. Uses config defaults if None.
-
-    Returns:
-        Tuple of (passed: bool, report: dict).
-        The report contains per-metric pass/fail details.
-    """
+    
     thresholds = thresholds or THRESHOLDS
 
     report = {
@@ -64,15 +44,7 @@ def check(summary: dict, thresholds: dict = None) -> tuple[bool, dict]:
 
 
 def format_report(report: dict) -> str:
-    """
-    Format the threshold check report as a human-readable string.
-
-    Args:
-        report: The report dict from check().
-
-    Returns:
-        Formatted multi-line string.
-    """
+   
     lines = []
     lines.append("=" * 60)
     lines.append("THRESHOLD CHECK REPORT")
