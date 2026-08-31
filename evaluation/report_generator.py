@@ -37,7 +37,6 @@ def append_to_history(summary: dict, filepath: str) -> None:
 
     file_exists = os.path.isfile(filepath)
 
-    # Check if file exists but is empty or only has headers
     write_header = not file_exists
     if file_exists:
         with open(filepath, "r", encoding="utf-8") as f:

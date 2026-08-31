@@ -6,7 +6,7 @@ def _normalize_text(text: str) -> str:
     """Normalize text for comparison: lowercase, strip, collapse whitespace."""
     text = text.lower().strip()
     text = re.sub(r"\s+", " ", text)
-    text = re.sub(r"[^\w\s]", "", text)  # Remove punctuation
+    text = re.sub(r"[^\w\s]", "", text)
     return text
 
 
@@ -14,7 +14,6 @@ def _extract_keywords(text: str) -> set:
     """Extract meaningful keywords from text (words with 3+ characters)."""
     normalized = _normalize_text(text)
     words = normalized.split()
-    # Filter out very short/common words
     stopwords = {
         "the", "a", "an", "is", "are", "was", "were", "be", "been", "being",
         "have", "has", "had", "do", "does", "did", "will", "would", "could",

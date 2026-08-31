@@ -56,7 +56,6 @@ def format_report(report: dict) -> str:
         value = details["value"]
         threshold = details["threshold"]
 
-        # Format numbers nicely
         if isinstance(value, float):
             if metric_name == "cost":
                 value_str = f"${value:.6f}"
