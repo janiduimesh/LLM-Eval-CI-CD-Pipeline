@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 
 
 def generate_json_report(results: list[dict], filepath: str) -> None:
-    
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     output = {
@@ -21,7 +20,6 @@ def generate_json_report(results: list[dict], filepath: str) -> None:
 
 
 def append_to_history(summary: dict, filepath: str) -> None:
-    
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
     headers = [
@@ -37,7 +35,6 @@ def append_to_history(summary: dict, filepath: str) -> None:
 
     file_exists = os.path.isfile(filepath)
 
-    # Check if file exists but is empty or only has headers
     write_header = not file_exists
     if file_exists:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -66,21 +63,19 @@ def append_to_history(summary: dict, filepath: str) -> None:
 
 
 def print_summary(summary: dict, threshold_report: dict) -> None:
-    
     passed = summary.get("passed", False)
-    status_emoji = "✅" if passed else "❌"
     status_text = "PASSED" if passed else "FAILED"
 
     print()
     print("╔" + "═" * 62 + "╗")
-    print(f"║  {status_emoji} LLM EVALUATION RESULTS — {status_text}".ljust(63) + "║")
+    print(f"║  LLM EVALUATION RESULTS — {status_text}".ljust(63) + "║")
     print("╠" + "═" * 62 + "╣")
     print(f"║  Total Questions:    {summary.get('total_questions', 0):<10}".ljust(63) + "║")
     print(f"║  Failed Questions:   {summary.get('failed_count', 0):<10}".ljust(63) + "║")
     print("╠" + "═" * 62 + "╣")
 
     for metric_name, details in threshold_report.items():
-        status = "✅" if details["passed"] else "❌"
+        status = "PASS" if details["passed"] else "FAIL"
         value = details["value"]
 
         if metric_name == "cost":
@@ -92,7 +87,7 @@ def print_summary(summary: dict, threshold_report: dict) -> None:
         else:
             value_str = str(value)
 
-        line = f"║  {status} {metric_name:<20s} {value_str:<15s}"
+        line = f"║  [{status:<4}] {metric_name:<20s} {value_str:<15s}"
         print(line.ljust(63) + "║")
 
     print("╚" + "═" * 62 + "╝")

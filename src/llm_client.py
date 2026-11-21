@@ -11,7 +11,6 @@ from src.config import (
     OUTPUT_COST_PER_TOKEN,
 )
 
-
 SYSTEM_INSTRUCTION = (
     "You are a helpful university assistant. When answering the student's question, "
     "provide a clear, complete, and comprehensive response based strictly on the provided context. "
@@ -36,7 +35,6 @@ class LLMClient:
         self.client = Groq(api_key=self.api_key)
 
     def generate(self, prompt: str, context: str, max_retries: int = 5) -> dict:
-        
         user_message = (
             f"Context:\n{context}\n\n"
             f"Question: {prompt}\n\n"
@@ -91,7 +89,7 @@ class LLMClient:
                     if "429" in err_str or "rate_limit" in err_str.lower() or "quota" in err_str.lower():
                         match = re.search(r"try again in (\d+(?:\.\d+)?)s", err_str, re.IGNORECASE)
                         wait_sec = float(match.group(1)) + 1.0 if match else 5.0 * (attempt + 1)
-                        print(f"[LLMClient] ⏳ Groq Rate Limit (429) hit. Waiting {wait_sec:.1f}s before retry...")
+                        print(f"[LLMClient] Groq Rate Limit (429) hit. Waiting {wait_sec:.1f}s before retry...")
                         time.sleep(wait_sec)
                     else:
                         print(f"[LLMClient] Attempt {attempt + 1}/{max_retries} failed: {e}")

@@ -21,7 +21,6 @@ from evaluation.report_generator import (
 
 
 def load_golden_dataset(filepath: str = None) -> list[dict]:
-    """Load the golden dataset from JSON file."""
     filepath = filepath or GOLDEN_DATASET_PATH
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -30,19 +29,14 @@ def load_golden_dataset(filepath: str = None) -> list[dict]:
 
 
 def run(dataset_path: str = None) -> int:
-   
     print("=" * 60)
-    print("  LLM EVALUATION PIPELINE — STARTING")
+    print("  LLM EVALUATION PIPELINE - STARTING")
     print("=" * 60)
     print()
 
-    # Load dataset
     dataset = load_golden_dataset(dataset_path)
-
-    # Initialize RAG chatbot
     chatbot = RAGChatbot()
 
-    # Evaluate each question
     per_question_results = []
     total_accuracy = 0.0
     total_hallucination = 0.0
@@ -59,20 +53,17 @@ def run(dataset_path: str = None) -> int:
         print(f"[Eval] [{i + 1}/{len(dataset)}] Evaluating {question_id}: {question[:60]}...")
 
         try:
-            # Get chatbot answer
             result = chatbot.answer(question)
 
-            # Compute metrics
             acc = accuracy_score(result["answer"], ground_truth)
             hall = hallucination_score(result["answer"], result["context_used"])
             lat = latency_metric(result["latency"])
-            cst = result["cost"]  # Already calculated by LLMClient
+            cst = result["cost"]
             failed = is_failed(acc, hall, lat, cst, THRESHOLDS)
 
             if failed:
                 failed_count += 1
 
-            # Accumulate
             total_accuracy += acc
             total_hallucination += hall
             total_latency += lat
@@ -98,14 +89,13 @@ def run(dataset_path: str = None) -> int:
 
             per_question_results.append(question_result)
 
-            status = "❌ FAIL" if failed else "✅ PASS"
+            status = "FAIL" if failed else "PASS"
             print(f"         {status}  Acc={acc:.2%}  Hall={hall:.2%}  Lat={lat:.2f}s  Cost=${cst:.6f}")
 
-            # Pacing sleep between questions to respect free-tier rate limits
             time.sleep(1.0)
 
         except Exception as e:
-            print(f"         ⚠️  ERROR: {e}")
+            print(f"         ERROR: {e}")
             failed_count += 1
             per_question_results.append({
                 "id": question_id,
@@ -125,7 +115,6 @@ def run(dataset_path: str = None) -> int:
                 "failed": True,
             })
 
-    # Calculate averages
     n = len(dataset)
     summary = {
         "total_questions": n,
@@ -138,22 +127,20 @@ def run(dataset_path: str = None) -> int:
         "total_latency": total_latency,
     }
 
-    # Check thresholds
     passed, threshold_report = check(summary)
     summary["passed"] = passed
 
-    # Generate reports
     generate_json_report(per_question_results, EVAL_RESULTS_PATH)
     append_to_history(summary, HISTORY_CSV_PATH)
+
     print_summary(summary, threshold_report)
     print(format_report(threshold_report))
 
-    # Return exit code
     if passed:
-        print("🎉 Evaluation PASSED — pipeline may proceed.")
+        print("Evaluation PASSED - pipeline may proceed.")
         return 0
     else:
-        print("🚫 Evaluation FAILED — merge blocked.")
+        print("Evaluation FAILED - merge blocked.")
         return 1
 
 

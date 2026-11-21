@@ -42,8 +42,7 @@ UNIVERSITY ASSIGNMENT RULES & POLICIES
      university.
 
 5. GROUP ASSIGNMENTS
-   - Group assignments must include a contribution statement signed by all
-     members.
+   - Group assignments must include a contribution statement signed by at least 3 members.
    - Each group member must contribute a minimum of 20% to the project.
    - Disputes regarding contribution must be raised with the instructor before
      the submission deadline.
