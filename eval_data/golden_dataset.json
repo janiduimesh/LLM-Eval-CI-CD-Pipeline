@@ -14,7 +14,7 @@
   {
     "id": "Q003",
     "question": "What happens on a second plagiarism offense?",
-    "ground_truth": "On the second offense, the student fails the course and is referred to the Academic Integrity Board.",
+    "ground_truth": "On the second offense,the student fails the course and is referred to the Academic Integrity Board.",
     "category": "assignment"
   },
   {
