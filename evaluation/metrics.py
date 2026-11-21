@@ -3,7 +3,6 @@ from difflib import SequenceMatcher
 
 
 def _normalize_text(text: str) -> str:
-    """Normalize text for comparison: lowercase, strip, collapse whitespace."""
     text = text.lower().strip()
     text = re.sub(r"\s+", " ", text)
     text = re.sub(r"[^\w\s]", "", text)
@@ -11,7 +10,6 @@ def _normalize_text(text: str) -> str:
 
 
 def _extract_keywords(text: str) -> set:
-    """Extract meaningful keywords from text (words with 3+ characters)."""
     normalized = _normalize_text(text)
     words = normalized.split()
     stopwords = {
@@ -33,20 +31,11 @@ def _extract_keywords(text: str) -> set:
 
 
 def _split_into_sentences(text: str) -> list[str]:
-    """Split text into sentences."""
     sentences = re.split(r"[.!?]+", text)
     return [s.strip() for s in sentences if s.strip() and len(s.strip()) > 10]
 
 
 def accuracy_score(predicted: str, ground_truth: str) -> float:
-    """ 
-    Args:
-        predicted: The LLM's answer.
-        ground_truth: The expected correct answer.
-
-    Returns:
-        Float between 0.0 and 1.0 (higher is better).
-    """
     if not predicted or not ground_truth:
         return 0.0
 
@@ -95,7 +84,6 @@ def accuracy_score(predicted: str, ground_truth: str) -> float:
 
 
 def _fallback_accuracy_score(predicted: str, ground_truth: str) -> float:
-    """Fallback fuzzy string matching accuracy score."""
     norm_predicted = _normalize_text(predicted)
     norm_truth = _normalize_text(ground_truth)
     sequence_sim = SequenceMatcher(None, norm_predicted, norm_truth).ratio()
@@ -119,14 +107,6 @@ def _fallback_accuracy_score(predicted: str, ground_truth: str) -> float:
 
 
 def hallucination_score(answer: str, context: str) -> float:
-    """
-    Args:
-        answer: The LLM's generated answer.
-        context: The retrieved context that was provided to the LLM.
-
-    Returns:
-        Float between 0.0 and 1.0 (0.0 = fully grounded, 1.0 = fully hallucinated).
-    """
     if not answer or not context:
         return 1.0 if answer else 0.0
 
@@ -168,7 +148,6 @@ def hallucination_score(answer: str, context: str) -> float:
 
 
 def _fallback_hallucination_score(answer: str, context: str) -> float:
-    
     answer_sentences = _split_into_sentences(answer)
     if not answer_sentences:
         return 0.0
@@ -197,12 +176,10 @@ def _fallback_hallucination_score(answer: str, context: str) -> float:
 
 
 def latency_metric(latency_seconds: float) -> float:
-   
     return round(latency_seconds, 4)
 
 
 def cost_metric(token_usage: dict, input_rate: float = None, output_rate: float = None) -> float:
-    
     from src.config import INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN
 
     input_rate = input_rate or INPUT_COST_PER_TOKEN
@@ -221,7 +198,6 @@ def is_failed(
     cost: float,
     thresholds: dict,
 ) -> bool:
-    
     if accuracy < thresholds.get("accuracy", 0.7):
         return True
     if hallucination > thresholds.get("hallucination", 0.2):

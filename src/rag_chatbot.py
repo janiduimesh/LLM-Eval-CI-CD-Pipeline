@@ -6,14 +6,12 @@ from src.config import TOP_K_RETRIEVAL
 class RAGChatbot:
 
     def __init__(self, retriever: Retriever = None, llm_client: LLMClient = None):
-        
         print("[RAGChatbot] Initializing...")
         self.retriever = retriever or Retriever()
         self.llm_client = llm_client or LLMClient()
         print("[RAGChatbot] Ready.")
 
     def answer(self, question: str) -> dict:
-        
         retrieved_chunks = self.retriever.retrieve(question, top_k=TOP_K_RETRIEVAL)
 
         if not retrieved_chunks:
@@ -45,7 +43,7 @@ class RAGChatbot:
         return {
             "answer": llm_result["answer"],
             "context_used": context_string,
-            "sources": list(set(sources)),  # Deduplicate
+            "sources": list(set(sources)),
             "retrieval_scores": scores,
             "latency": llm_result["latency"],
             "cost": llm_result["cost"],

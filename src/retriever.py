@@ -16,17 +16,12 @@ from src.config import (
 
 
 class GeminiEmbeddingFunction(chromadb.EmbeddingFunction):
-    """
-    Custom ChromaDB embedding function using Google Gemini's text-embedding-004.
-    Uses the new google-genai SDK.
-    """
 
     def __init__(self, api_key: str, model_name: str):
         self._client = genai.Client(api_key=api_key)
         self._model_name = model_name.replace("models/", "") if model_name else "text-embedding-004"
 
     def __call__(self, input: list[str]) -> list[list[float]]:
-        """Generate embeddings for a list of texts."""
         embeddings = []
         for text in input:
             result = self._client.models.embed_content(
@@ -38,10 +33,6 @@ class GeminiEmbeddingFunction(chromadb.EmbeddingFunction):
 
 
 class Retriever:
-    """
-    ChromaDB-powered document retriever with Google Gemini embeddings.
-
-    """
 
     COLLECTION_NAME = "university_rules"
 
@@ -66,7 +57,6 @@ class Retriever:
         self._sync_knowledge_base()
 
     def _compute_kb_hash(self) -> str:
-        """Compute a hash of all knowledge base files and chunk settings to detect changes."""
         hasher = hashlib.md5()
         hasher.update(f"cs_{self.chunk_size}_co_{self.chunk_overlap}".encode("utf-8"))
         txt_files = sorted(glob.glob(os.path.join(self.knowledge_base_dir, "*.txt")))
@@ -76,7 +66,6 @@ class Retriever:
         return hasher.hexdigest()
 
     def _sync_knowledge_base(self):
-        """Load and index documents if the collection is empty or knowledge base has changed."""
         kb_hash = self._compute_kb_hash()
         existing_count = self.collection.count()
 
@@ -111,7 +100,6 @@ class Retriever:
         print(f"[Retriever] Indexed {len(chunks)} chunks into ChromaDB collection '{self.COLLECTION_NAME}'.")
 
     def _load_and_chunk(self) -> list[dict]:
-        """Load all .txt files and split into overlapping chunks."""
         txt_files = glob.glob(os.path.join(self.knowledge_base_dir, "*.txt"))
 
         if not txt_files:

@@ -2,7 +2,6 @@ from src.config import THRESHOLDS
 
 
 def check(summary: dict, thresholds: dict = None) -> tuple[bool, dict]:
-    
     thresholds = thresholds or THRESHOLDS
 
     report = {
@@ -44,14 +43,13 @@ def check(summary: dict, thresholds: dict = None) -> tuple[bool, dict]:
 
 
 def format_report(report: dict) -> str:
-   
     lines = []
     lines.append("=" * 60)
     lines.append("THRESHOLD CHECK REPORT")
     lines.append("=" * 60)
 
     for metric_name, details in report.items():
-        status = "✅ PASS" if details["passed"] else "❌ FAIL"
+        status = "PASS" if details["passed"] else "FAIL"
         operator = details["operator"]
         value = details["value"]
         threshold = details["threshold"]
@@ -71,7 +69,7 @@ def format_report(report: dict) -> str:
             threshold_str = str(threshold)
 
         lines.append(
-            f"  {status}  {metric_name:<20s}  "
+            f"  {status:<5}  {metric_name:<20s}  "
             f"Value: {value_str:<12s}  {operator} Threshold: {threshold_str}"
         )
 

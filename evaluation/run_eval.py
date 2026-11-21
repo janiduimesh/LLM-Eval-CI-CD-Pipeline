@@ -21,7 +21,6 @@ from evaluation.report_generator import (
 
 
 def load_golden_dataset(filepath: str = None) -> list[dict]:
-    """Load the golden dataset from JSON file."""
     filepath = filepath or GOLDEN_DATASET_PATH
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
@@ -30,14 +29,12 @@ def load_golden_dataset(filepath: str = None) -> list[dict]:
 
 
 def run(dataset_path: str = None) -> int:
-   
     print("=" * 60)
-    print("  LLM EVALUATION PIPELINE — STARTING")
+    print("  LLM EVALUATION PIPELINE - STARTING")
     print("=" * 60)
     print()
 
     dataset = load_golden_dataset(dataset_path)
-
     chatbot = RAGChatbot()
 
     per_question_results = []
@@ -92,13 +89,13 @@ def run(dataset_path: str = None) -> int:
 
             per_question_results.append(question_result)
 
-            status = "❌ FAIL" if failed else "✅ PASS"
+            status = "FAIL" if failed else "PASS"
             print(f"         {status}  Acc={acc:.2%}  Hall={hall:.2%}  Lat={lat:.2f}s  Cost=${cst:.6f}")
 
             time.sleep(1.0)
 
         except Exception as e:
-            print(f"         ⚠️  ERROR: {e}")
+            print(f"         ERROR: {e}")
             failed_count += 1
             per_question_results.append({
                 "id": question_id,
@@ -135,14 +132,15 @@ def run(dataset_path: str = None) -> int:
 
     generate_json_report(per_question_results, EVAL_RESULTS_PATH)
     append_to_history(summary, HISTORY_CSV_PATH)
+
     print_summary(summary, threshold_report)
     print(format_report(threshold_report))
 
     if passed:
-        print("🎉 Evaluation PASSED — pipeline may proceed.")
+        print("Evaluation PASSED - pipeline may proceed.")
         return 0
     else:
-        print("🚫 Evaluation FAILED — merge blocked.")
+        print("Evaluation FAILED - merge blocked.")
         return 1
 
 
